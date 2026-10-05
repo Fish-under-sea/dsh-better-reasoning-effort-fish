@@ -1,177 +1,199 @@
-# DSH Better Reasoning Effort
+> **🍥 上游插件的客制化版** · 基于上游 `v0.5.2`（commit `52b584c`）
+>
+> 本仓库**不是原创插件**，而是 [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) 的**个人客制化版（fork）**：
+> 插件的全部功能与著作权归原作者，本版只改了一处 —— 把「请求头编辑器」占用的官方席位还给 dsh-web 的模型能力插件，详见 [✨ 本版改了什么](#-本版改了什么)。
+> 已发布到 npm：**`dsh-better-reasoning-effort-fish`**（`latest` = `0.5.3`）。
+> 上游原始 README 与 LICENSE 原样保留：[`README.original.md`](README.original.md) · [`README_ZH.original.md`](README_ZH.original.md) · [`NOTICE.md`](NOTICE.md)。
+
+<div align="center">
+
+# dsh-better-reasoning-effort-fish
+
+**思考强度与输入模态，直接改在官方「模型」页的编辑卡里**
+
+![upstream](https://img.shields.io/badge/upstream-HaoyueQin%2Fdsh--better--reasoning--effort-0078D6?style=flat-square)
+![base](https://img.shields.io/badge/base-v0.5.2-8b5cf6?style=flat-square)
+![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5--alpha.1-22d3ee?style=flat-square)
+![node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933?style=flat-square)
+![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)
+
+第三方模型的思考档位、线上取值与图片输入，全部回到官方「模型」页 —— 外加一个装进 Composer 模型菜单的思考强度滑块。
+
+</div>
+
+---
+
+## 🙏 原作者与授权（请先读）
+
+| 项目 | 内容 |
+|------|------|
+| 插件名 | **dsh-better-reasoning-effort** —— 为第三方模型声明思考强度与输入模态 |
+| 原作者 | **HaoyueQin** · GitHub [@HaoyueQin](https://github.com/HaoyueQin) |
+| 原仓库 | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
+| 上游 npm 包名 | `dsh-better-reasoning-effort`（**归原作者，本版不能沿用**） |
+| 本版 npm 包名 | **`dsh-better-reasoning-effort-fish`** |
+| 许可证 | **MIT**，版权归原作者（本仓库 [`LICENSE`](LICENSE) **未做任何修改**） |
+| 本版基线 | 上游 `master` = **v0.5.2**（commit `52b584c`） |
+| 本版性质 | **个人客制化版（fork）**，非原创、非官方；上游 README 完整保留为 [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
+
+> 署名与改动范围的完整说明见 **[`NOTICE.md`](NOTICE.md)**。再分发时请保留原作者署名。
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/banner-dark.svg">
-    <img src="docs/banner.svg" alt="DSH Better Reasoning Effort" width="720">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/banner-zh-dark.svg">
+    <img src="docs/banner-zh.svg" alt="DSH Better Reasoning Effort" width="720">
   </picture>
 </p>
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![npm version](https://img.shields.io/npm/v/dsh-better-reasoning-effort)](https://www.npmjs.com/package/dsh-better-reasoning-effort)
-[![npm downloads](https://img.shields.io/npm/dw/dsh-better-reasoning-effort)](https://www.npmjs.com/package/dsh-better-reasoning-effort)
-![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-plugin-4d6bfe)
-[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
-
-**English** | [中文](README.zh.md)
-
-Reasoning-effort **and input-modality** editing for **third-party models** in DeepSeek Harness, edited right inside the official Models page card — plus a quick reasoning-effort slider inside the official composer model menu (adapted from [HanaAyane's dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort), see [Acknowledgements](#acknowledgements)).
-
 <p align="center">
-  <img src="docs/demo.svg" alt="demo" width="640">
+  <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
 </p>
 
-<p align="center">
-  <img src="assets/models-page-effort-editor.png" alt="The thinking-effort editor injected into a model row on the official Models page" width="720">
-</p>
+## 📖 上游插件做什么
 
-## Why
+`llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts` 与 `input`，但官方「模型」页编辑卡刻意不暴露这两个字段。于是第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。上游插件把这两份配置能力都搬回 UI：官方模型编辑卡内直接编辑，加一键自动适配。
 
-The `llm-pi-ai` adapter natively supports per-model `reasoningEfforts` and `input` declarations, but the official Models page editor deliberately keeps both fields out of reach. As a result, third-party models get **no thinking-level picker** in the composer, only the official DeepSeek API can set reasoning effort, hand-declared models are treated as **text-only**, and configuring any of this meant hand-writing `settings.yaml` blocks. This plugin brings both configuration surfaces back into the UI: edit inside the official model editor card, plus one-click auto-adapt.
+| 能力 | 说明 |
+|------|------|
+| **官方页内注入** | 官方模型行展开区出现「选项」编辑块（思考强度、输入模态、端点兼容），随卡片自身的**保存**统一提交，**取消**则一起丢弃 |
+| **自动适配** | 一键填入推荐档位、线上取值与模态：内置知识库（15 家厂商 65 个条目）+ 线协议推断 + 同源 `/models` 探测，每条建议标注置信度 |
+| **自动填充** | 启动时补齐未声明模型的推荐声明，会话中新增的也会补写（`autofill: false` / `modalityAutofill: false` 可关） |
+| **三种意图** | 全不勾 = 取消声明（回到继承）；只勾 off = 禁用推理；勾选档位 = 写入声明 |
+| **Composer 思考强度滑块** | 官方模型菜单弹出体换成上游风格的档位滑块（拖动 / 键盘，乐观提交、被拒回滚），右下角触发钮保持原样 |
+| **每模型默认思考强度** | 模型行上的「默认思考强度」选择器，写进设置文档，新会话打开该模型即用它 |
+| **请求头与 User-Agent** | 提供商卡片内编辑官方 `headers` 字段（掩码显示、路径合并），并按 origin 精确接管 fetch 层的 `user-agent`；同源 `/models` 探测一并覆盖 |
+| **防御式注入** | 一切锚定官方页 DOM；官方升级改变结构时注入自动暂停，官方页不受影响 |
 
-## Features
+## ✨ 本版改了什么
 
-- **In-page editor** — an "Options" block appears under each model row's disclosure on the official Models page (reasoning effort, input modalities, endpoint compatibility), committing with the card's own **Save**; changes stay pending until then, and **Cancel** discards them with the card's fields.
-- **Auto-adapt** — one click fills recommended levels, wire spellings and modalities from a built-in knowledge base (65 entries across 15 vendors — see [Supported models](docs/supported-models.md)), wire-protocol inference, and a same-origin probe of the provider's raw `/models` listing, every suggestion labeled by confidence; reference capacities show as read-only hints you copy yourself.
-- **Auto-fill** — models without a declaration are filled at boot and when added mid-session (opt out via `autofill: false` / `modalityAutofill: false`); explicit declarations, `false` and deliberately-unset markers are never touched.
-- **Three intents** — all levels off = unset (back to inheritance); only `off` = disable reasoning; levels armed = write the declaration.
-- **Composer slider** — the official model menu's body is replaced by an upstream-style effort slider (drag / keyboard, optimistic commit with rollback), with one model row opening the official model list; the official trigger stays untouched, and model switches keep your level through a per-session memory chain (issue #4's per-model default effort outranks it across sessions).
-- **Per-model default effort** — a "Default effort" picker on each model row, stored in the settings document; every new session starts the model there.
-- **Request headers & `user-agent`** — a provider-card section edits the official `headers` field (masked, path-merged, Save-gated), and the plugin performs the `user-agent` override at the fetch layer per origin, because the official adapter reserves that name; same-origin `/models` probes are covered, conflicts are reported rather than guessed.
-- **Defensive injection** — everything keys off the official page's DOM; if an official upgrade changes the structure, injection simply pauses and the official page is unaffected.
-- Bilingual copy (中文 / English).
+**只有一处：请求头编辑器不再占用官方 `settings.models.provider-card` 席位。**
 
-## Supported models
+官方该席位是 **keyed slot** —— 注册表对同一 `(key, priority)` **只接受一个条目**，第二个注册直接抛错（`@deepseek-ai/dsh-client-ui-slots` 的 `SlotCore.register`）。dsh-web 全家桶里的 `@linxin666/dsh-client-ui-model-capabilities`（模型能力面板）注册的正是同一个 key `llm-pi-ai`、同一个默认优先级 `0`。
 
-The auto-adapt knowledge base carries **65 curated entries across 15 vendors** (DeepSeek, OpenAI, Anthropic Claude, Gemini, Grok, Qwen, GLM, Kimi, Mistral, MiniMax, MiMo, Doubao, Hunyuan, Step, ERNIE — re-verified against official docs 2026-08/09, including vision-capable variants and no-effort-control families). The full table — match patterns, level → wire-spelling ladders, defaults, modalities, reference capacities — lives in **[docs/supported-models.md](docs/supported-models.md)** (generated from [`src/knowledge.ts`](src/knowledge.ts), the authoritative source). Unlisted models fall back to protocol inference + generic levels, adjustable by hand.
+两个插件都占这个席位时，只有一个能注册成功，**另一个的整块界面静默消失**（失败方通常还用自己的 `try/catch` 吞掉了异常，界面上没有任何报错）。而 dsh-web 聚合包走的是异步壳行（`await import()` 之后才挂载），本插件是直接插件行 —— 所以实际赢家是本插件，被挤掉的是**模型能力面板**（每模型思考强度 / 图片输入），也就是「单独设置模型参数」那块界面。
 
-## Install
+| | 修复前 | 修复后 |
+|---|---|---|
+| `settings.models.provider-card` 席位 | 本插件的请求头编辑器抢占 | **完整让给 `model-capabilities`** |
+| 模型能力面板（思考强度 / 图片输入） | 静默消失，无任何报错 | 正常显示 |
+| 请求头编辑器 | 在卡片内 | **仍在卡片内** —— 改挂官方卡片自己的编辑器容器 |
+| 锚定方式 | 官方 keyed 席位 | 官方动作行 `[class*="editorActions"]` 的父元素（容器存在即卡片打开） |
 
-Requires DeepSeek Harness **`0.1.5-alpha.1` or later** (per-line peer ranges; the `0.1.2-rc` / `0.1.3-alpha` lines are no longer supported — use plugin `0.3.7` there). Compiled and gated against `0.2.0-rc.2`. The per-kernel seam re-checks behind this live in [docs/compatibility-notes.md](docs/compatibility-notes.md).
+改动落在 [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts)（新增）、[`src/client/index.ts`](src/client/index.ts)（不再注册席位）与 [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts)（接入页面扫描）。
 
-From npm, under the dsh web profile:
+回归防护写在测试里：[`tests/client.spec.tsx`](tests/client.spec.tsx) 断言该席位**没有被注册**，[`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx) 覆盖卡片内挂载、幂等、卡片收起后的卸载、route 变化重渲染与三种 route 解析分支。
 
-```bash
-dsh plugin --profile web add dsh-better-reasoning-effort
-```
+> 与上游并存：两者的插件 id、host 路由前缀（`/dsh-better-reasoning-effort-fish/*`）与包名都已分开，可以在同一个 profile 里同时安装而不互相抢占。实际使用建议**只装一个**，避免同一份设置被两套 UI 同时编辑。
 
-DSH bundles pnpm 11.7.0, whose default `minimum-release-age` is 24 hours: an install started within a day of a release resolves to the newest version old enough and installs that one, while the plugin manager may still display the newer release. Name the version to install it without waiting — pnpm accepts a named version and records it as an exemption:
+## 🚀 安装
 
-```bash
-dsh plugin --profile web add dsh-better-reasoning-effort@0.5.2
-```
+需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按行联合的 peer 范围），当前对照 `0.2.0-rc.2` 编译与门禁。
 
-The release page also carries the packed tarball, which skips both the registry and the release-age wait. It is prebuilt, so pnpm executes nothing and asks for no build approval. The URL names one version, so an update replaces it:
-
-```bash
-dsh plugin --profile web add \
-  https://github.com/HaoyueQin/dsh-better-reasoning-effort/releases/download/v<version>/dsh-better-reasoning-effort-<version>.tgz
-```
-
-From GitHub source, for development and review rather than normal installs. pnpm runs the `prepare` hook to build `lib/`, and allows that only once an `allowBuilds` entry exists. The installer prints the exact key, which names the resolved commit: add it to the profile's `pnpm-workspace.yaml` and repeat the add. A new commit changes that key, so every release needs re-approval, and the commit-free key form needs a newer pnpm than the bundled 11.7.0:
+从 npm 安装：
 
 ```bash
-dsh plugin --profile web add github:HaoyueQin/dsh-better-reasoning-effort
+dsh plugin --profile web add dsh-better-reasoning-effort-fish
 ```
 
-Or link a local checkout for development:
+或链接本地检出（开发用）：
 
 ```bash
 npm install && npm run build
-dsh plugin --profile web add link:D:/Project/dsh-better-reasoning-effort
+dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
-Restart `dsh web` and hard-refresh the browser.
+安装后重启 `dsh web` 并强制刷新浏览器。
 
-## Usage
+> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.3`。
 
-1. Configure a third-party provider (API key etc.) on the official Models page.
-2. Expand a model row: the editor block sits under the official capacity fields.
-   - Check levels (off / minimal / low / medium / high / xhigh / max) and fill the wire values (e.g. give `high` the spelling `ultra`, and the gateway receives `ultra` when you pick High in the composer);
-   - Toggle **Image input** under *Input modalities* to declare what the model accepts;
-   - Click **Auto-adapt** to fill recommended levels and modalities — reference capacities show up as read-only hints you copy into the official fields yourself;
-   - Any change is **pending** and lands when you press the card's own **Save**; **Cancel** (or a reload) discards it with the card's fields.
-3. On a compatible protocol, the *Endpoint compatibility* section appears at the bottom — thinking budget field / vLLM priority on `openai-completions`, `max_output_tokens` handling on `openai-responses`.
-4. All levels off + Save = unset the declaration; only `off` checked + Save = disable reasoning (`false`); *Clear declaration* + Save = back to inheriting the provider default.
+## 🎯 使用
 
-Declared models are immediately selectable for reasoning effort in the composer, and image-declared models accept attachments end to end.
+1. 在官方「模型」页配置第三方供应商（API Key 等）。
+2. 展开某个模型行：官方容量字段下方是编辑块。
+   - 勾选档位（off / minimal / low / medium / high / xhigh / max），填线上取值（如给 `high` 填 `ultra`，Composer 选 High 时网关收到 `ultra`）；
+   - 在「输入模态」区勾选**图片输入**，声明模型接受什么；
+   - 点「自动适配」填推荐档位与模态 —— 参考容量以只读提示出现，可自行照抄进官方输入框；
+   - 改动**即时进入待写入**，点卡片自身的**保存**时一并落盘；**取消**（或刷新）则与卡片字段一起丢弃。
+3. 协议兼容时，底部会出现「端点兼容」分区 —— `openai-completions` 上设思考预算字段 / vLLM 优先级，`openai-responses` 上设 `max_output_tokens` 的处理方式。
+4. 请求头：展开**提供商卡片**，编辑块上方就是请求头区域（掩码显示、随卡片保存），可填 `user-agent` 等自定义请求头。
+5. 全不勾 + 保存 = 取消声明（回到继承）；只勾 off + 保存 = 禁用推理（`false`）；模态行「清除声明」+ 保存 = 回到继承提供方默认。
 
-## Configuration
+声明后的模型在 Composer 里立即可选思考强度；声明了图片输入的模型可以端到端传附件。
 
-Optional on the plugin's profile row (values shown are the defaults):
+## ⚙️ 配置
+
+host 侧接受可选配置项（以下为默认值）：
 
 ```yaml
 - insert:
-    - id: dsh-better-reasoning-effort
-      name: dsh-better-reasoning-effort
+    - id: dsh-better-reasoning-effort-fish
+      name: dsh-better-reasoning-effort-fish
       config:
-        autofill: true          # auto-fill undeclared models at boot
-        modalityAutofill: true  # whether the boot fill also covers modalities
-        probeTimeoutMs: 15000   # /models probe fetch timeout
+        autofill: true          # 启动时自动填充未声明的模型
+        modalityAutofill: true  # 上述填充是否连带输入模态声明
+        probeTimeoutMs: 15000   # /models 探测请求超时（毫秒）
         bootRetryDelaysMs: [1000, 2000, 4000, 8000, 16000, 30000]
-        defaultGuard: true      # map effort-less calls on forced-thinking
-                                # ladders to the vendor default
+        defaultGuard: true      # 强制思考梯子上的无档位调用落厂商默认档
 ```
 
-## How it works
+## 🏗️ 工作方式（架构）
 
 ```
-Browser (lib/client.js)                  Host (lib/index.js)
-├─ DOM injector                          └─ Auto-fill
-│   MutationObserver on the models page      settings/document-updated →
-│   → mounts EffortEditor in each            invalidates the host cache;
-│     model row's disclosure                 browser idle pass fills models
-├─ Composer injection
-│   MutationObserver on the document
-│   → ComposerSlider (root pane)
-├─ EffortEditor (React component)             (knowledge base + inference)
-│   level checkboxes / wire values /
-│   input-modality toggle /
-│   auto-adapt (zoned suggestions) / committed with the card's Save
-│   └─ writes settings.mutate (llm-pi-ai)
+Browser (lib/client.js)                       Host (lib/index.js)
+├─ DOM injector                               ├─ Auto-fill
+│   MutationObserver on the models page       │   settings/document-updated →
+│   ├─ EffortEditor in each model row         │   invalidates the host cache;
+│   └─ HeadersEditor inside each provider     │   browser idle pass fills models
+│      card's own editor container            │
+├─ Composer injection                         ├─ /raw-models proxy (same-origin)
+│   MutationObserver on the document          ├─ /autofill-config
+│   → ComposerSlider                          └─ /headers-config
+├─ Models-page footer toggle
+└─ EffortEditor (React component)                (knowledge base + inference)
+    level checkboxes / wire values / input-modality toggle /
+    auto-adapt / committed with the card's Save
+    └─ writes settings.mutate (llm-pi-ai)
 ```
 
-- `suggestEfforts()` in `src/knowledge.ts` is the knowledge base + inference engine — a pure function shared by host and browser.
-- `reconcile()` in `src/client/injection/models-page-editor.ts` locates model rows and mounts the editor; `src/client/index.ts` assembles the browser half, one module per seam in `src/client/injection/`.
-- `createEditorApi()` in `src/client/ops.ts` writes the declarations via `settings.mutate`, preserving every other row field and retrying once on a revision conflict.
+- `src/knowledge.ts` 的 `suggestEfforts()` 是知识库 + 推断引擎 —— host 与浏览器共用的纯函数。
+- `src/client/injection/models-page-editor.ts` 的 `reconcile()` 定位模型行并挂载编辑器；`src/client/injection/provider-card.ts` 定位提供商卡片的编辑器容器并挂载请求头编辑器。浏览器侧由 `src/client/index.ts` 组装，每个注入缝一个模块。
+- `src/client/ops.ts` 的 `createEditorApi()` 经 `settings.mutate` 写声明，保留行上其他字段，版本冲突时重读并重试一次。
 
-## Development
+## 🧪 开发
 
 ```bash
-npm run typecheck   # tsc strict check on src
-npm test            # vitest: knowledge / inference / autofill / DOM injection / writing
-npm run build       # lib/*.js + lib/client.js (module-loader bundle)
+npm run typecheck   # tsc 严格检查
+npm test            # vitest：知识库 / 推断 / 自动填充 / DOM 注入 / 写入
+npm run build       # lib/*.js + lib/client.js
 ```
 
-Compiled and gated against the `0.2.0-rc.2` official packages; see [docs/compatibility-notes.md](docs/compatibility-notes.md) for the per-kernel records.
+本机在 DSH 文件沙箱下开发时，`vitest` 与 esbuild 需要额外处理（沙箱禁止子进程管道）—— 完整命令见 [`FORK.md`](FORK.md)。
 
-## Known limitations
+## ⚠️ 已知限制
 
-- Injection depends on the official Models page's DOM (aria-label/class); an official upgrade may pause injection until adapted — the official page is unaffected meanwhile.
-- The auto-adapt probe route answers **loopback and IP-literal hosts only** (the core `/api` Host-allowlist discipline without `trustedHosts`), and **never follows redirects** — a gateway listing its models only behind a 30x simply yields no endpoint evidence; Auto-adapt falls back to the knowledge base and protocol inference.
-- `reasoningEfforts` declarations are suggestions — what an endpoint actually accepts is up to its docs; tweak in the UI. The knowledge base is not exhaustive; families without an effort ladder carry no entry at all.
-- Endpoint-compatibility switches are never auto-filled by design: they describe a gateway, not a model.
-- The modality vocabulary follows pi-ai's core (`text` / `image` today); wider gateway support (PDF, audio, video) is recorded per family until the core vocabulary grows.
-- Name-heuristic modality advice (vision-flavored ids) is deliberately low-confidence and labeled as such.
-- Self-hosted relays: auto-fill pins `supportsDeveloperRole: false` on routes no official host claims (some upstreams reject the `developer` role); explicit values are never overwritten.
-- Forced-thinking models (ladders without `off`, e.g. GLM-5.3): effort-less calls map to the vendor default instead of sending `thinking: disabled` — set `defaultGuard: false` to restore raw behavior.
-- **Credentials inside `headers` are not redacted on disk**: the read-only view masks them, but the settings document still holds them in clear text — treat it like an API key.
-- **The request-header section's edit-state detection reads an unofficial signal** (the official row exposes no data attribute for its editor state); if an official build renames that class root, the section stops appearing — never breaking the page.
-- **Only one `user-agent` rewrite should be active**: sibling header plugins land on the same layer; the plugin detects and reports known ones, but the last writer on the wire wins.
-- The request-layer takeover relies on the official adapter creating a fresh SDK client per request — guarded by an end-to-end test that fails loudly if that changes.
+- 注入依赖官方「模型」页的 DOM（aria-label / class）；官方升级可能让注入暂停直至适配 —— 期间官方页不受影响。
+- 自动适配探测路由只应答**回环与 IP 字面量 host**，且**从不跟随重定向** —— 只在 30x 后面列模型的网关拿不到端点证据，自动适配回退到知识库与协议推断。
+- `reasoningEfforts` 声明是建议 —— 端点真正接受什么以它的文档为准，请在 UI 里微调。
+- 端点兼容开关刻意永不自动填充：它们描述的是网关行为而非模型能力。
+- 模态词汇跟随 pi-ai 核心（当前 `text` / `image`）；更宽的网关支持（PDF / 音频 / 视频）在核心词汇扩充前声明不了，这是设计使然。
+- 命名启发式的模态建议（视觉风味 id）刻意标注低置信度，使用前请核对。
+- 自建中转：对没有官方 host 认领的路由，自动填充会钉 `supportsDeveloperRole: false`；显式值永不被覆盖。
+- 强制思考模型（无 `off` 的梯子，如 GLM-5.3）：无档位调用自动落厂商默认档而不是发 `thinking: disabled` —— 设 `defaultGuard: false` 可恢复原行为。
+- **`headers` 中的凭据在磁盘上不脱敏**：只读视图会掩码，但设置文档仍明文保存 —— 请当 API key 对待。
+- **请求头区域依赖官方卡片的编辑器容器**：官方若改变该结构，请求头区域会停止出现 —— 绝不弄坏官方页面。这也是本版相对上游的取舍：不再使用官方席位，换来与 dsh-web 插件共存。
+- **同一时间只应有一个 `user-agent` 改写器**：同类 header 插件落在同一层，后写者赢；插件会检测并提示已知同类，但不覆盖未知情况。
+- 请求层接管依赖官方适配器每请求新建 SDK 客户端 —— 有端到端测试守护该边界，变化时会响亮地失败而不是静默失效。
 
-## Acknowledgements
+## 🙌 致谢
 
-The composer slider is **adapted from [dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort) by [HanaAyane](https://github.com/HanaAyane)** (MIT) — thank you for the original work and the codex-style effort control idea. This integration keeps the upstream session-selection contract and slider interaction, with deliberate changes: a white round thumb only (no chibi-runner knob), the official model seat never replaced, and placement on the `0.1.5-alpha`+ line as a reduced re-implementation over the harness wire contract. If you used the upstream plugin, remove it to avoid two effort controls on the same seat:
+- **上游作者 [HaoyueQin](https://github.com/HaoyueQin)** —— 本版全部功能来自其 [dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort)（MIT），本仓库只做了一处客制化修复。
+- Composer 滑块**改编自 [HanaAyane 的 dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort)**（MIT）—— 感谢原作者与 codex 风格档位控件的创意。如果用过上游那个插件，请先移除以免同一席位出现两个档位控件：
 
-```bash
-dsh plugin --profile web remove dsh-reasoning-effort
-```
+  ```bash
+  dsh plugin --profile web remove dsh-reasoning-effort
+  ```
 
-## Activity
+## 📄 License
 
-[![HaoyueQin/dsh-better-reasoning-effort GitStock K-Line Chart](https://gitstock.org/HaoyueQin/dsh-better-reasoning-effort/stock.svg)](https://gitstock.org/HaoyueQin/dsh-better-reasoning-effort/stock.svg)
-
-## License
-
-MIT
+[MIT](LICENSE)，版权归原作者 **HaoyueQin**；本版新增代码同样以 MIT 发布，再分发请保留 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
