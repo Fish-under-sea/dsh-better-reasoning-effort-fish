@@ -1,0 +1,58 @@
+# 发布到 npm（tag 触发）。
+#
+# 走 npm 的 Trusted Publishing（OIDC）：无需在仓库里存 NPM_TOKEN，但**必须**
+# 先在 npm 网页上为本包配置一次发布者 —— 包 Settings → Trusted Publisher →
+# GitHub Actions，填本仓库名与 workflow 文件名 `publish.yml`。首次发布（包名还
+# 不存在时）请在本机执行：`npm publish --access public --ignore-scripts`。
+#
+# 发布前必须打 tag：`git tag v0.5.3 && git push origin v0.5.3`。
+
+name: Publish Package
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # 串行化，避免较早的并发运行最后结束而把 dist-tag 往回推。
+  group: npm-publish-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        # --ignore-scripts：lib/ 已由上一步构建好，不必再跑 prepare。
+        run: npm publish --access public --ignore-scripts
