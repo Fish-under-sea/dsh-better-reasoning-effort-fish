@@ -9,7 +9,13 @@
  * @module dsh-better-reasoning-effort/client/slider-pref
  */
 
-/** localStorage key (own namespace; the upstream plugin's keys stay untouched). */
+/**
+ * localStorage key. Deliberately KEEPS the upstream package namespace rather
+ * than this fork's id: switching from the upstream plugin to this fork must not
+ * reset the user's slider toggle, and both plugins describe the same switch.
+ * (The two UPSTREAM_KEYS below are a different thing -- the OTHER slider
+ * plugin's keys, migrated once and then left alone.)
+ */
 export const SLIDER_PREF_KEY = 'dsh-better-reasoning-effort.slider.enabled'
 
 /** Upstream plugin keys, consulted as a one-time migration fallback. */

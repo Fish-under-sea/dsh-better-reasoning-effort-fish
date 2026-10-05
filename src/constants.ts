@@ -1,14 +1,21 @@
 /**
  * Plugin-wide constants shared by the host and browser halves.
  *
- * @module dsh-better-reasoning-effort/constants
+ * Identity: this is the Fish fork of `dsh-better-reasoning-effort`. The plugin
+ * id, the host route prefixes and the locale namespace all carry the fork's own
+ * name, so the two plugins can coexist in one profile without fighting over a
+ * route or a client-plugin registration. The package name, the
+ * `cordis.patch.yml` row and this id must stay in step — a mismatch makes the
+ * harness load the bundle without registering it.
+ *
+ * @module dsh-better-reasoning-effort-fish/constants
  */
 
 /** Stable plugin id, matching the cordis.patch.yml row and the bundle id. */
-export const PLUGIN_ID = 'dsh-better-reasoning-effort'
+export const PLUGIN_ID = 'dsh-better-reasoning-effort-fish'
 
 /** Same-origin host route that proxies a provider's RAW /models listing. */
-export const PROBE_PATH = '/dsh-better-reasoning-effort/raw-models'
+export const PROBE_PATH = '/dsh-better-reasoning-effort-fish/raw-models'
 
 /**
  * Same-origin host route that reports this plugin's autofill switches. The
@@ -17,7 +24,7 @@ export const PROBE_PATH = '/dsh-better-reasoning-effort/raw-models'
  * from the host that owns the cordis row; without it a deployment that turned
  * `autofill: false` would still be written to from the page.
  */
-export const AUTOFILL_CONFIG_PATH = '/dsh-better-reasoning-effort/autofill-config'
+export const AUTOFILL_CONFIG_PATH = '/dsh-better-reasoning-effort-fish/autofill-config'
 
 /**
  * Same-origin host route reporting the request-header overlay (issue #12): the
@@ -26,7 +33,7 @@ export const AUTOFILL_CONFIG_PATH = '/dsh-better-reasoning-effort/autofill-confi
  * coexistence warning from here — the takeover lives host-side, so the page
  * cannot observe it on its own.
  */
-export const HEADERS_CONFIG_PATH = '/dsh-better-reasoning-effort/headers-config'
+export const HEADERS_CONFIG_PATH = '/dsh-better-reasoning-effort-fish/headers-config'
 
 /** The settings namespace this plugin edits: pi-ai custom provider routes. */
 export const PI_AI_NS = 'llm-pi-ai'

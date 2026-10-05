@@ -112,7 +112,7 @@ function makeDeps(overrides?: Partial<InjectorDeps>): InjectorDeps & {
     // Mirror the real mount: the editor DOM carries the plugin marker, which
     // is what the idempotency guard checks.
     const marker = document.createElement('div')
-    marker.dataset['plugin'] = 'dsh-better-reasoning-effort'
+    marker.dataset['plugin'] = 'dsh-better-reasoning-effort-fish'
     container.appendChild(marker)
     const editor: FakeEditor = {
       unmount: vi.fn(() => { marker.remove() }),

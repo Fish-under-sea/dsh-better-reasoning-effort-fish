@@ -5,6 +5,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { PROBE_PATH } from '../src/constants.js'
 
 type HostCtx = Parameters<typeof import('../src/index.js').apply>[0]
 
@@ -289,7 +290,8 @@ describe('apply() autofill', () => {
 })
 
 describe('apply() probe route', () => {
-  const PROBE_PATH = '/dsh-better-reasoning-effort/raw-models'
+  // The route prefix is imported from the plugin's own constant: this fork
+  // renamed it, and a hard-coded copy here would rot on the next rename.
 
   function fakeRes(): { res: unknown; out: () => { status: number; body: Record<string, unknown> } } {
     let status = 0

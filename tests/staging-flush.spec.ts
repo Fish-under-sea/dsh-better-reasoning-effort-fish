@@ -84,7 +84,7 @@ function makeDeps(host: { doc: Record<string, unknown>; mutate: ReturnType<typeo
   } as unknown as RemoteApi
   const mount = vi.fn((container: HTMLElement, props: EditorMountProps): MountedEditor => {
     const marker = document.createElement('div')
-    marker.dataset['plugin'] = 'dsh-better-reasoning-effort'
+    marker.dataset['plugin'] = 'dsh-better-reasoning-effort-fish'
     container.appendChild(marker)
     const record: { props?: EditorMountProps } = { props }
     editors.push(record)
