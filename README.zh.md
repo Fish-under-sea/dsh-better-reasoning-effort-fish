@@ -25,6 +25,10 @@
   <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
 </p>
 
+## 本 fork 的改动
+
+本机维护的 fork，基线为上游 0.5.2，相对上游只有一处必要改动：**请求头编辑器不再占用官方 `settings.models.provider-card` 席位**——该席位是 keyed slot，同一 `(key, priority)` 只允许一个注册者，而 dsh-web 全家桶的「模型能力」插件注册的正是同一个 `llm-pi-ai` key，两边抢占会让其中一方的整块界面静默消失。现在席位完整让给它，请求头编辑器改挂官方卡片自身的编辑器容器，两侧功能都保留。完整说明（含跟随上游与本机沙箱下的开发命令）见 **[FORK.md](FORK.md)**。
+
 ## 为什么需要它
 
 `llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts` 与 `input`，但官方「模型」页编辑卡刻意不暴露这两个字段。于是第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。本插件把这两份配置能力都搬回 UI：官方模型编辑卡内直接编辑，加一键自动适配。
