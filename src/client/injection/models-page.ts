@@ -24,6 +24,10 @@ import {
   createScanState, flushOnTeardown, flushOnUnload, reconcile,
   type HostLabels, type InjectorDeps, type ScanState,
 } from './models-page-editor.js'
+import {
+  reconcileHeaderCards, unmountHeaderCards,
+  type HeaderCardDeps, type HeaderCardMount,
+} from './provider-card.js'
 import { describeNamespace } from '../ops.ts'
 import type { ClientContext, RemoteApi } from '../types.js'
 import { EffortBoundary, panelRoot } from './mount.js'
@@ -130,6 +134,23 @@ export function createModelsPage(deps: ModelsPageDeps): ModelsPageInjection {
   /** Debounce window for DOM-mutation scans (one scan per render burst). */
   const SCAN_DEBOUNCE_MS = 120
   const scanState = createScanState()
+  /**
+   * The request-header editors living inside the official provider cards,
+   * keyed by the container element that holds each one. They belong to this
+   * page's scan (not to the model-row scan state): a provider card can show a
+   * header row while listing no model row at all, so the two lifecycles are
+   * independent by construction.
+   */
+  const headerMounted = new Map<HTMLElement, HeaderCardMount>()
+  const headerDeps: HeaderCardDeps = {
+    api,
+    t,
+    // The same boundary copy the per-row editors use: one render-failure
+    // surface for every foreign root this plugin owns.
+    boundaryText: t('renderFailed'),
+    refreshed,
+    mounted: headerMounted,
+  }
   let scanTimer: number | undefined
   let retryTimer: number | undefined
   let observer: MutationObserver | undefined
@@ -218,6 +239,10 @@ export function createModelsPage(deps: ModelsPageDeps): ModelsPageInjection {
       // preference flip.
       composerMutation?.()
       reconcile(panelRoot(), injectorDeps, scanState)
+      // The provider cards' own seat: keyed by the card's editor container, so
+      // it opens and closes with the official editor regardless of whether the
+      // card lists any model row (issue #12's seat-free rewrite).
+      reconcileHeaderCards(panelRoot(), headerDeps)
     }, SCAN_DEBOUNCE_MS)
   }
 
@@ -270,6 +295,9 @@ export function createModelsPage(deps: ModelsPageDeps): ModelsPageInjection {
     // visibly. Unmount every React root this plugin created.
     for (const [, entry] of scanState.mounted) entry.editor.unmount()
     scanState.mounted.clear()
+    // The card-inner header editors are foreign roots too: a fiber that went
+    // away must not leave them rendering against a stale api face.
+    unmountHeaderCards(headerMounted)
   }
 
   const flushOnUnloadNow = (): void => { flushOnUnload(scanState, injectorDeps) }

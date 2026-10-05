@@ -56,7 +56,6 @@ import { createIdleAutofill } from './injection/autofill-run.js'
 import { createModelsPage } from './injection/models-page.js'
 import { createSessionDirectoryTracker } from './injection/session-directory.js'
 import { modelMenuOf } from './injection/model-menu.js'
-import { registerProviderCardSlot } from './injection/provider-card-slot.js'
 import { registerSliderToggleSlot } from './injection/slider-toggle-slot.js'
 
 /** Stable plugin id, matching the cordis.patch.yml row and the bundle id. */
@@ -237,14 +236,16 @@ export function apply(ctx: ClientContext): void {
 
   ctx.effect(() => registerSliderToggleSlot(ctx, t), 'dsh-better-reasoning-effort: footer slot activation')
 
-  // The request-header editor (issue #12) takes the OFFICIAL provider-card seat:
-  // keyed by the adapter family's settings namespace, it receives every
-  // llm-pi-ai card — shipped, added, and hand-declared alike — with no DOM
-  // anchor to maintain.
-  ctx.effect(
-    () => registerProviderCardSlot(ctx, settingsApi, t),
-    'dsh-better-reasoning-effort: provider-card slot activation',
-  )
+  // The request-header editor (issue #12) does NOT take the official
+  // `settings.models.provider-card` seat, and must not: that seat is a KEYED
+  // slot, the registry admits one entry per (key, priority), and the dsh-web
+  // aggregate's model-capabilities plugin registers the same key
+  // (`llm-pi-ai`) at the same priority. Registering here made the second
+  // plugin's registration throw and its whole per-model capabilities panel
+  // (the thinking-effort editor among them) vanish silently. The seat stays
+  // with that plugin; this editor mounts inside the provider card's own
+  // editor container instead — see `injection/provider-card.ts`, wired into
+  // the Models-page scan.
 }
 
 export type { BreKey }

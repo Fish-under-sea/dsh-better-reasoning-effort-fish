@@ -592,9 +592,10 @@ body:not([data-ds-dark-theme]) .bre-effort.is-dragging .bre-effort-knob {
 }
 .bre-slider-setting-switch.is-on .bre-slider-setting-switch-knob { transform: translateX(16px); }
 
-/* ---- Request-header section (issue #12). Mounted through the official
-   settings.models.provider-card seat, so it sits in the card's own layout
-   rather than a disclosure grid.
+/* ---- Request-header section (issue #12). Mounted INSIDE the provider card's
+   own editor container rather than through the official keyed seat (the seat is
+   left to sibling plugins — see injection/provider-card.ts), so it sits in the
+   card's own layout rather than a disclosure grid.
 
    Every value below was MEASURED off the official Models page's own controls
    in DSH 0.1.7-rc.2 rather than guessed, and each is expressed through the same
@@ -607,23 +608,14 @@ body:not([data-ds-dark-theme]) .bre-effort.is-dragging .bre-effort-knob {
      row action      h28, radius 8px, 0 10px, 12px, 1px border
      text link       h21, radius 4px, 2px 6px, 12px, link-blue label
      text input      radius 12px, 0 10px, 1px var(--dsw-alias-border-l3)  ---- */
-/* The provider-card slot's wrapper.
-   The official slot mounts us inside a display:contents container, so our own
-   root IS a flex item of the card row — and the row lays its children out with
-   a 12px gap. A wrapper that stays in the flow while empty therefore adds one
-   phantom gap to EVERY card in the list, which is exactly the height regression
-   this rule exists to prevent. Collapsed, the wrapper leaves the flow entirely:
-   the card renders as it did before the plugin.
-   (Deliberately NOT display:contents here — that keeps it a gap-participating
-   item, which is the bug this rule fixes.)
-   Open, it becomes an ordinary block so the section below can lay itself out.
-   data-edit lives HERE — the occurrence component publishes the card's state
-   onto its own root, so keying the rule on .bre-headers[data-edit] instead
-   would silently never match. */
+/* The provider-card section's wrapper.
+   It is created and inserted into the card's OWN editor container, which the
+   official card renders only while it is being edited — so the wrapper's mere
+   presence already means "this card is open": there is no display switch and no
+   data attribute to key one on. (The seat-era wrapper had to hide itself
+   precisely because the official slot mounted it into EVERY card of the list;
+   this one cannot exist inside a collapsed card at all.) */
 .bre-headers-host {
-  display: none;
-}
-.bre-headers-host[data-edit="1"] {
   display: block;
 }
 .bre-headers {
@@ -634,29 +626,9 @@ body:not([data-ds-dark-theme]) .bre-effort.is-dragging .bre-effort-knob {
      section is an addition to that column, so it separates itself the same way
      the host separates card sections — a hairline on the card's own stroke. */
   border-top: 1px solid var(--dsw-alias-border-l2, #0000001a);
-  padding-top: 12px;
-
-  /* Present ONLY while the provider card is being edited.
-     The provider list is a list of providers: a request-header row parked in
-     every card, collapsed or not, is noise on a surface the user did not ask
-     to configure. The card reveals its editor when the user presses its own
-     Edit action, and that is the moment this section belongs on screen — the
-     same gesture that opens the model list opens this.
-
-     The visibility is decided by the component (which watches the card and
-     sets data-edit on the wrapper), not by a selector: the official editor is
-     NOT a sibling of this element — its container sits in the card row's own
-     children, after the row head and this section's own wrapper — so no
-     relative selector can reach it. The wrapper's data-edit is the one fact
-     CSS can act on.
-
-     Degradation is safe by construction: with no observer (no card ancestor to
-     watch) data-edit stays "0", the section is never revealed, and the
-     official page stays clean rather than leaking a row into every card. */
-  display: none;
-}
-.bre-headers-host[data-edit="1"] .bre-headers {
-  display: flex;
+  padding-top: 12px;  /* Present only while its card is open — guaranteed by the mount's own
+     lifecycle, not by a selector: the editor exists iff the card's editor
+     container does. */
 }
 /* The collapsed heading is the section's identity while the card is being
    edited: title, configured count, and the › that opens the details. */
