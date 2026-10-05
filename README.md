@@ -1,30 +1,22 @@
-> **🍥 上游插件的客制化版** · 基于上游 `v0.5.2`（commit `52b584c`）
->
-> 本仓库**不是原创插件**，而是 [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) 的**个人客制化版（fork）**：
-> 插件的全部功能与著作权归原作者，本版只改了一处 —— 把「请求头编辑器」占用的官方席位还给 dsh-web 的模型能力插件，详见 [✨ 本版改了什么](#-本版改了什么)。
-> 已发布到 npm：**`dsh-better-reasoning-effort-fish`**（`latest` = `0.5.3`）。
-> 上游原始 README 与 LICENSE 原样保留：[`README.original.md`](README.original.md) · [`README_ZH.original.md`](README_ZH.original.md) · [`NOTICE.md`](NOTICE.md)。
-
 <div align="center">
 
 # dsh-better-reasoning-effort-fish
 
-**思考强度与输入模态，直接改在官方「模型」页的编辑卡里**
+**第三方模型的思考强度与输入模态，直接改在官方「模型」页的编辑卡里**
 
-![upstream](https://img.shields.io/badge/upstream-HaoyueQin%2Fdsh--better--reasoning--effort-0078D6?style=flat-square)
-![base](https://img.shields.io/badge/base-v0.5.2-8b5cf6?style=flat-square)
+[![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-better-reasoning-effort-fish)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5--alpha.1-22d3ee?style=flat-square)
-![node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933?style=flat-square)
-![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)
+![node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-339933?style=flat-square)
+![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5--alpha.1-4b6ef6?style=flat-square)
+![client+host](https://img.shields.io/badge/plugin-client%20%2B%20host-6b7280?style=flat-square)
 
-第三方模型的思考档位、线上取值与图片输入，全部回到官方「模型」页 —— 外加一个装进 Composer 模型菜单的思考强度滑块。
+<img src="icon.svg" alt="dsh-better-reasoning-effort-fish" width="96">
 
 </div>
 
 ---
 
-## 🙏 原作者与授权（请先读）
+## 原作者与授权（请先读）
 
 | 项目 | 内容 |
 |------|------|
@@ -50,7 +42,7 @@
   <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
 </p>
 
-## 📖 上游插件做什么
+## 上游插件做什么
 
 `llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts` 与 `input`，但官方「模型」页编辑卡刻意不暴露这两个字段。于是第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。上游插件把这两份配置能力都搬回 UI：官方模型编辑卡内直接编辑，加一键自动适配。
 
@@ -65,7 +57,7 @@
 | **请求头与 User-Agent** | 提供商卡片内编辑官方 `headers` 字段（掩码显示、路径合并），并按 origin 精确接管 fetch 层的 `user-agent`；同源 `/models` 探测一并覆盖 |
 | **防御式注入** | 一切锚定官方页 DOM；官方升级改变结构时注入自动暂停，官方页不受影响 |
 
-## ✨ 本版改了什么
+## 本版改了什么
 
 **只有一处：请求头编辑器不再占用官方 `settings.models.provider-card` 席位。**
 
@@ -86,28 +78,33 @@
 
 > 与上游并存：两者的插件 id、host 路由前缀（`/dsh-better-reasoning-effort-fish/*`）与包名都已分开，可以在同一个 profile 里同时安装而不互相抢占。实际使用建议**只装一个**，避免同一份设置被两套 UI 同时编辑。
 
-## 🚀 安装
+## 安装
 
-需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按行联合的 peer 范围），当前对照 `0.2.0-rc.2` 编译与门禁。
+需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按 peerDependencies 范围），当前对照 `0.2.0-rc.2` 编译与门禁。Node 要求 `^22.19.0 || >=24`。
 
-从 npm 安装：
+从 npm 安装（推荐）：
 
 ```bash
+# 桌面版
+dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
+
+# Web 版
 dsh plugin --profile web add dsh-better-reasoning-effort-fish
 ```
 
-或链接本地检出（开发用）：
+链接本地检出（改源码用）：
 
 ```bash
 npm install && npm run build
+dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
-安装后重启 `dsh web` 并强制刷新浏览器。
+安装后**重启 DSH** 并强制刷新浏览器。
 
-> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.3`。
+> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.5`。
 
-## 🎯 使用
+## 使用
 
 1. 在官方「模型」页配置第三方供应商（API Key 等）。
 2. 展开某个模型行：官方容量字段下方是编辑块。
@@ -121,23 +118,33 @@ dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 
 声明后的模型在 Composer 里立即可选思考强度；声明了图片输入的模型可以端到端传附件。
 
-## ⚙️ 配置
+## 配置
 
-host 侧接受可选配置项（以下为默认值）：
+host 侧接受以下可选配置项（写入 `settings.yaml` 的插件 `config` 块）：
+
+| 配置键 | 默认值 | 可选值 | 说明 |
+|--------|--------|--------|------|
+| `autofill` | `true` | `true` / `false` | 启动时自动填充未声明模型的推荐声明 |
+| `modalityAutofill` | `true` | `true` / `false` | 上述填充是否连带输入模态声明 |
+| `probeTimeoutMs` | `15000` | 正整数 | `/models` 探测请求超时（毫秒） |
+| `bootRetryDelaysMs` | `[1000, 2000, 4000, 8000, 16000, 30000]` | 正整数数组 | 启动时自动填充失败后的重试延迟（毫秒） |
+| `defaultGuard` | `true` | `true` / `false` | 强制思考梯子上的无档位调用落厂商默认档，而非发送 `thinking: disabled` |
+
+示例：
 
 ```yaml
 - insert:
     - id: dsh-better-reasoning-effort-fish
       name: dsh-better-reasoning-effort-fish
       config:
-        autofill: true          # 启动时自动填充未声明的模型
-        modalityAutofill: true  # 上述填充是否连带输入模态声明
-        probeTimeoutMs: 15000   # /models 探测请求超时（毫秒）
+        autofill: true
+        modalityAutofill: true
+        probeTimeoutMs: 15000
         bootRetryDelaysMs: [1000, 2000, 4000, 8000, 16000, 30000]
-        defaultGuard: true      # 强制思考梯子上的无档位调用落厂商默认档
+        defaultGuard: true
 ```
 
-## 🏗️ 工作方式（架构）
+## 工作方式
 
 ```
 Browser (lib/client.js)                       Host (lib/index.js)
@@ -160,7 +167,7 @@ Browser (lib/client.js)                       Host (lib/index.js)
 - `src/client/injection/models-page-editor.ts` 的 `reconcile()` 定位模型行并挂载编辑器；`src/client/injection/provider-card.ts` 定位提供商卡片的编辑器容器并挂载请求头编辑器。浏览器侧由 `src/client/index.ts` 组装，每个注入缝一个模块。
 - `src/client/ops.ts` 的 `createEditorApi()` 经 `settings.mutate` 写声明，保留行上其他字段，版本冲突时重读并重试一次。
 
-## 🧪 开发
+## 开发与测试
 
 ```bash
 npm run typecheck   # tsc 严格检查
@@ -170,7 +177,7 @@ npm run build       # lib/*.js + lib/client.js
 
 本机在 DSH 文件沙箱下开发时，`vitest` 与 esbuild 需要额外处理（沙箱禁止子进程管道）—— 完整命令见 [`FORK.md`](FORK.md)。
 
-## ⚠️ 已知限制
+## 已知限制
 
 - 注入依赖官方「模型」页的 DOM（aria-label / class）；官方升级可能让注入暂停直至适配 —— 期间官方页不受影响。
 - 自动适配探测路由只应答**回环与 IP 字面量 host**，且**从不跟随重定向** —— 只在 30x 后面列模型的网关拿不到端点证据，自动适配回退到知识库与协议推断。
@@ -185,7 +192,16 @@ npm run build       # lib/*.js + lib/client.js
 - **同一时间只应有一个 `user-agent` 改写器**：同类 header 插件落在同一层，后写者赢；插件会检测并提示已知同类，但不覆盖未知情况。
 - 请求层接管依赖官方适配器每请求新建 SDK 客户端 —— 有端到端测试守护该边界，变化时会响亮地失败而不是静默失效。
 
-## 🙌 致谢
+## 更多文档
+
+- [`FORK.md`](FORK.md) —— 本 Fork 的维护说明与沙箱开发注意事项
+- [`NOTICE.md`](NOTICE.md) —— 署名与改动范围的完整说明
+- [`README.original.md`](README.original.md) —— 上游原始 README（英文）
+- [`README_ZH.original.md`](README_ZH.original.md) —— 上游原始 README（中文）
+- [`docs/compatibility-notes.md`](docs/compatibility-notes.md) —— 兼容性说明
+- [`docs/supported-models.md`](docs/supported-models.md) —— 支持的模型列表
+
+## 致谢
 
 - **上游作者 [HaoyueQin](https://github.com/HaoyueQin)** —— 本版全部功能来自其 [dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort)（MIT），本仓库只做了一处客制化修复。
 - Composer 滑块**改编自 [HanaAyane 的 dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort)**（MIT）—— 感谢原作者与 codex 风格档位控件的创意。如果用过上游那个插件，请先移除以免同一席位出现两个档位控件：
@@ -194,6 +210,6 @@ npm run build       # lib/*.js + lib/client.js
   dsh plugin --profile web remove dsh-reasoning-effort
   ```
 
-## 📄 License
+## 许可
 
-[MIT](LICENSE)，版权归原作者 **HaoyueQin**；本版新增代码同样以 MIT 发布，再分发请保留 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
+[MIT](LICENSE)，著作权归原作者 **HaoyueQin**；本版新增代码同样以 MIT 发布，再分发请保留 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
