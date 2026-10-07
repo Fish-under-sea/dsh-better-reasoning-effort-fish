@@ -30,7 +30,7 @@ npm publish --access public --ignore-scripts   # 本机首发；--ignore-scripts
 git tag v0.5.3 && git push origin v0.5.3       # 之后交给 .github/workflows/publish.yml
 ```
 
-CI 走 npm 的 **Trusted Publishing（OIDC）**，仓库里不存 token；但**首次走 CI 前**需要在本包的 npm 页面配置一次发布者（Settings → Trusted Publisher → GitHub Actions，填 `Fish-under-sea/-dsh-better-reasoning-effort-fish` 与 workflow 名 `publish.yml`）。
+CI 走 npm 的 **Trusted Publishing（OIDC）**，仓库里不存 token；但**首次走 CI 前**需要在本包的 npm 页面配置一次发布者（Settings → Trusted Publisher → GitHub Actions，填 `Fish-under-sea/dsh-better-reasoning-effort-fish` 与 workflow 名 `publish.yml`）。
 
 ## 本机开发备注（DSH 文件沙箱）
 

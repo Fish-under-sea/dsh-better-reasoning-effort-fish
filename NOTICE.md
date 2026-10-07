@@ -14,7 +14,7 @@
 | 许可证 | **MIT** |
 | 本版基线 | 上游 `master` = **v0.5.2**（commit `52b584c`） |
 
-## 本版（Fish-under-sea/-dsh-better-reasoning-effort-fish）做了什么
+## 本版（Fish-under-sea/dsh-better-reasoning-effort-fish）做了什么
 
 只做**一处修复**，未改动上游的思考强度编辑、自动适配、自动填充、Composer 滑块、每模型默认档与请求头接管逻辑：
 
