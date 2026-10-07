@@ -6,15 +6,15 @@
 
 [![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-better-reasoning-effort-fish)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24-339933?style=flat-square)
-![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5--alpha.1-4b6ef6?style=flat-square)
-![client+host](https://img.shields.io/badge/plugin-client%20%2B%20host-6b7280?style=flat-square)
+![node](https://img.shields.io/badge/node-%5E22.19.0%20%7C%7C%20%3E%3D24-339933?style=flat-square)
+![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5%2Dalpha.1-4b6ef6?style=flat-square)
+![plugin](https://img.shields.io/badge/plugin-client%20%2B%20host-6b7280?style=flat-square)
 
 <img src="icon.svg" alt="dsh-better-reasoning-effort-fish" width="96">
 
-</div>
+**简体中文** · [English](README.en.md)
 
----
+</div>
 
 ## 原作者与授权（请先读）
 
@@ -29,22 +29,13 @@
 | 本版基线 | 上游 `master` = **v0.5.2**（commit `52b584c`） |
 | 本版性质 | **个人客制化版（fork）**，非原创、非官方；上游 README 完整保留为 [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
 
-> 署名与改动范围的完整说明见 **[`NOTICE.md`](NOTICE.md)**。再分发时请保留原作者署名。
+> 署名与改动范围的完整说明见 [`NOTICE.md`](NOTICE.md)。再分发时请保留原作者署名。
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/banner-zh-dark.svg">
-    <img src="docs/banner-zh.svg" alt="DSH Better Reasoning Effort" width="720">
-  </picture>
-</p>
+## 解决什么问题
 
-<p align="center">
-  <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
-</p>
+`llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts`（思考强度）与 `input`（输入模态），但官方「模型」页编辑卡刻意不暴露这两个字段。结果：第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。
 
-## 上游插件做什么
-
-`llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts` 与 `input`，但官方「模型」页编辑卡刻意不暴露这两个字段。于是第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。上游插件把这两份配置能力都搬回 UI：官方模型编辑卡内直接编辑，加一键自动适配。
+本插件把这两份配置能力搬回 UI：在官方模型编辑卡内直接编辑，加一键自动适配（内置模型知识库 + 线协议推断）。
 
 | 能力 | 说明 |
 |------|------|
@@ -57,26 +48,20 @@
 | **请求头与 User-Agent** | 提供商卡片内编辑官方 `headers` 字段（掩码显示、路径合并），并按 origin 精确接管 fetch 层的 `user-agent`；同源 `/models` 探测一并覆盖 |
 | **防御式注入** | 一切锚定官方页 DOM；官方升级改变结构时注入自动暂停，官方页不受影响 |
 
-## 本版改了什么
+**本版（本 Fork）相对上游的改动：让出官方模型能力面板的 `settings.models.provider-card` 席位，避免与 dsh-web 的模型能力插件冲突。** 详见[兼容与边界](#兼容与边界)。
 
-**只有一处：请求头编辑器不再占用官方 `settings.models.provider-card` 席位。**
+## 效果
 
-官方该席位是 **keyed slot** —— 注册表对同一 `(key, priority)` **只接受一个条目**，第二个注册直接抛错（`@deepseek-ai/dsh-client-ui-slots` 的 `SlotCore.register`）。dsh-web 全家桶里的 `@linxin666/dsh-client-ui-model-capabilities`（模型能力面板）注册的正是同一个 key `llm-pi-ai`、同一个默认优先级 `0`。
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/banner-zh-dark.svg">
+    <img src="docs/banner-zh.svg" alt="DSH Better Reasoning Effort" width="720">
+  </picture>
+</p>
 
-两个插件都占这个席位时，只有一个能注册成功，**另一个的整块界面静默消失**（失败方通常还用自己的 `try/catch` 吞掉了异常，界面上没有任何报错）。而 dsh-web 聚合包走的是异步壳行（`await import()` 之后才挂载），本插件是直接插件行 —— 所以实际赢家是本插件，被挤掉的是**模型能力面板**（每模型思考强度 / 图片输入），也就是「单独设置模型参数」那块界面。
-
-| | 修复前 | 修复后 |
-|---|---|---|
-| `settings.models.provider-card` 席位 | 本插件的请求头编辑器抢占 | **完整让给 `model-capabilities`** |
-| 模型能力面板（思考强度 / 图片输入） | 静默消失，无任何报错 | 正常显示 |
-| 请求头编辑器 | 在卡片内 | **仍在卡片内** —— 改挂官方卡片自己的编辑器容器 |
-| 锚定方式 | 官方 keyed 席位 | 官方动作行 `[class*="editorActions"]` 的父元素（容器存在即卡片打开） |
-
-改动落在 [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts)（新增）、[`src/client/index.ts`](src/client/index.ts)（不再注册席位）与 [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts)（接入页面扫描）。
-
-回归防护写在测试里：[`tests/client.spec.tsx`](tests/client.spec.tsx) 断言该席位**没有被注册**，[`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx) 覆盖卡片内挂载、幂等、卡片收起后的卸载、route 变化重渲染与三种 route 解析分支。
-
-> 与上游并存：两者的插件 id、host 路由前缀（`/dsh-better-reasoning-effort-fish/*`）与包名都已分开，可以在同一个 profile 里同时安装而不互相抢占。实际使用建议**只装一个**，避免同一份设置被两套 UI 同时编辑。
+<p align="center">
+  <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
+</p>
 
 ## 安装
 
@@ -84,7 +69,7 @@
 
 从 npm 安装（推荐）：
 
-```bash
+```sh
 # 桌面版
 dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
 
@@ -94,7 +79,7 @@ dsh plugin --profile web add dsh-better-reasoning-effort-fish
 
 链接本地检出（改源码用）：
 
-```bash
+```sh
 npm install && npm run build
 dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
@@ -144,40 +129,29 @@ host 侧接受以下可选配置项（写入 `settings.yaml` 的插件 `config` 
         defaultGuard: true
 ```
 
-## 工作方式
+## 兼容与边界
 
-```
-Browser (lib/client.js)                       Host (lib/index.js)
-├─ DOM injector                               ├─ Auto-fill
-│   MutationObserver on the models page       │   settings/document-updated →
-│   ├─ EffortEditor in each model row         │   invalidates the host cache;
-│   └─ HeadersEditor inside each provider     │   browser idle pass fills models
-│      card's own editor container            │
-├─ Composer injection                         ├─ /raw-models proxy (same-origin)
-│   MutationObserver on the document          ├─ /autofill-config
-│   → ComposerSlider                          └─ /headers-config
-├─ Models-page footer toggle
-└─ EffortEditor (React component)                (knowledge base + inference)
-    level checkboxes / wire values / input-modality toggle /
-    auto-adapt / committed with the card's Save
-    └─ writes settings.mutate (llm-pi-ai)
-```
+**本 Fork 只做一处修复**：请求头编辑器不再占用官方 `settings.models.provider-card` 席位，改挂官方卡片自身的编辑器容器。
 
-- `src/knowledge.ts` 的 `suggestEfforts()` 是知识库 + 推断引擎 —— host 与浏览器共用的纯函数。
-- `src/client/injection/models-page-editor.ts` 的 `reconcile()` 定位模型行并挂载编辑器；`src/client/injection/provider-card.ts` 定位提供商卡片的编辑器容器并挂载请求头编辑器。浏览器侧由 `src/client/index.ts` 组装，每个注入缝一个模块。
-- `src/client/ops.ts` 的 `createEditorApi()` 经 `settings.mutate` 写声明，保留行上其他字段，版本冲突时重读并重试一次。
+原因是官方该席位为 **keyed slot** —— 注册表对同一 `(key, priority)` 只接受一个条目，第二个注册直接抛错。dsh-web 全家桶的 `@linxin666/dsh-client-ui-model-capabilities`（模型能力面板）注册的正是同一个 `llm-pi-ai` key、同一个默认优先级 `0`。两者都占时只有一个能注册成功，另一个的整块界面**静默消失**。因 dsh-web 走异步壳行加载，实际被挤掉的是**模型能力面板**（每模型思考强度 / 图片输入）。
 
-## 开发与测试
+| | 修复前 | 修复后 |
+|---|---|---|
+| `settings.models.provider-card` 席位 | 本插件抢占 | **完整让给 `model-capabilities`** |
+| 模型能力面板 | 静默消失 | 正常显示 |
+| 请求头编辑器 | 在卡片内（占席位） | **仍在卡片内** —— 改挂卡片自己的编辑器容器 |
 
-```bash
-npm run typecheck   # tsc 严格检查
-npm test            # vitest：知识库 / 推断 / 自动填充 / DOM 注入 / 写入
-npm run build       # lib/*.js + lib/client.js
+改动落在 [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts)（新增）、[`src/client/index.ts`](src/client/index.ts)（不再注册席位）与 [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts)（接入页面扫描）。回归防护见 [`tests/client.spec.tsx`](tests/client.spec.tsx) 与 [`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx)。
+
+两者的插件 id、host 路由前缀（`/dsh-better-reasoning-effort-fish/*`）与包名都已分开，可在同一 profile 并存；实际使用建议**只装一个**，避免同一份设置被两套 UI 同时编辑。
+
+Composer 滑块**改编自 [HanaAyane 的 dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort)**（MIT）。如果用过上游那个插件，请先移除以免同一席位出现两个档位控件：
+
+```sh
+dsh plugin --profile web remove dsh-reasoning-effort
 ```
 
-本机在 DSH 文件沙箱下开发时，`vitest` 与 esbuild 需要额外处理（沙箱禁止子进程管道）—— 完整命令见 [`FORK.md`](FORK.md)。
-
-## 已知限制
+**已知限制**
 
 - 注入依赖官方「模型」页的 DOM（aria-label / class）；官方升级可能让注入暂停直至适配 —— 期间官方页不受影响。
 - 自动适配探测路由只应答**回环与 IP 字面量 host**，且**从不跟随重定向** —— 只在 30x 后面列模型的网关拿不到端点证据，自动适配回退到知识库与协议推断。
@@ -192,23 +166,23 @@ npm run build       # lib/*.js + lib/client.js
 - **同一时间只应有一个 `user-agent` 改写器**：同类 header 插件落在同一层，后写者赢；插件会检测并提示已知同类，但不覆盖未知情况。
 - 请求层接管依赖官方适配器每请求新建 SDK 客户端 —— 有端到端测试守护该边界，变化时会响亮地失败而不是静默失效。
 
-## 更多文档
+更多兼容性细节见 [`docs/compatibility-notes.md`](docs/compatibility-notes.md)，支持的模型列表见 [`docs/supported-models.md`](docs/supported-models.md)。
 
-- [`FORK.md`](FORK.md) —— 本 Fork 的维护说明与沙箱开发注意事项
-- [`NOTICE.md`](NOTICE.md) —— 署名与改动范围的完整说明
-- [`README.original.md`](README.original.md) —— 上游原始 README（英文）
-- [`README_ZH.original.md`](README_ZH.original.md) —— 上游原始 README（中文）
-- [`docs/compatibility-notes.md`](docs/compatibility-notes.md) —— 兼容性说明
-- [`docs/supported-models.md`](docs/supported-models.md) —— 支持的模型列表
+## 开发与测试
 
-## 致谢
+```sh
+npm run typecheck   # tsc 严格检查
+npm test            # vitest：知识库 / 推断 / 自动填充 / DOM 注入 / 写入
+npm run build       # lib/*.js + lib/client.js
+```
 
-- **上游作者 [HaoyueQin](https://github.com/HaoyueQin)** —— 本版全部功能来自其 [dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort)（MIT），本仓库只做了一处客制化修复。
-- Composer 滑块**改编自 [HanaAyane 的 dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort)**（MIT）—— 感谢原作者与 codex 风格档位控件的创意。如果用过上游那个插件，请先移除以免同一席位出现两个档位控件：
+测试由 vitest 驱动，需先 `npm install` 安装依赖（全新 clone 不含 `node_modules`），再 `npm test` 运行；构建用 `npm run build`（`lib/` 为构建产物，已被 gitignore，clone 里不含）。
 
-  ```bash
-  dsh plugin --profile web remove dsh-reasoning-effort
-  ```
+本机在 DSH 文件沙箱下开发时，`vitest` 与 esbuild 需要额外处理（沙箱禁止子进程管道）—— 完整命令见 [`FORK.md`](FORK.md)。
+
+## 与聚合包的关系
+
+本包是**独立仓库**（<https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish>），不在 `dsh-fish` 单仓内；但它是聚合包 [`@fish-under-sea/dsh-fish`](https://github.com/Fish-under-sea/dsh-fish) 的成员之一，可与聚合包内其他插件一起安装。
 
 ## 许可
 
