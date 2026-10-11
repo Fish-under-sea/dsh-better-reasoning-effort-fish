@@ -77,6 +77,21 @@ dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
 dsh plugin --profile web add dsh-better-reasoning-effort-fish
 ```
 
+> DSH bundles pnpm with a `minimum-release-age` of 24 hours: installs within a day of a release resolve to the newest version old enough. Pin the version to install immediately, e.g. `dsh-better-reasoning-effort-fish@0.5.7`.
+
+The release page also carries the packed tarball, which skips both the registry and the release-age wait. It is prebuilt, so pnpm executes nothing and asks for no build approval. The URL names one version, so an update replaces it:
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
+```
+
+From GitHub source, for development and review rather than normal installs. pnpm runs the `prepare` hook to build `lib/`, and allows that only once an `allowBuilds` entry exists. The installer prints the exact key, which names the resolved commit: add it to the profile's `pnpm-workspace.yaml` and repeat the add. A new commit changes that key, so every release needs re-approval:
+
+```sh
+dsh plugin --profile web add github:Fish-under-sea/dsh-better-reasoning-effort-fish
+```
+
 Link a local checkout (for source changes):
 
 ```sh
@@ -86,8 +101,6 @@ dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
 **Restart DSH** and hard-refresh the browser after installation.
-
-> DSH bundles pnpm with a `minimum-release-age` of 24 hours: installs within a day of a release resolve to the newest version old enough. Pin the version to install immediately, e.g. `dsh-better-reasoning-effort-fish@0.5.5`.
 
 ## Usage
 

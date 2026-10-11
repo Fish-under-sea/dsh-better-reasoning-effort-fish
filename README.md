@@ -77,6 +77,21 @@ dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
 dsh plugin --profile web add dsh-better-reasoning-effort-fish
 ```
 
+> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.7`。
+
+release 页面同时附带打包好的 tarball，这条路线跳过 registry 与发布冷静期。tarball 是成品，pnpm 不执行任何脚本，也不需要构建授权。URL 指向单一版本，升级时替换它即可：
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
+```
+
+从 GitHub 源码安装，用于开发与审查而非日常安装。pnpm 要跑 `prepare` 钩子构建 `lib/`，且只在 `allowBuilds` 存在对应条目后才放行。安装器会打印确切的键，该键包含解析到的 commit：把它加进 profile 的 `pnpm-workspace.yaml` 后重新执行 add。新 commit 会改变这个键，因此每次发版都要重新授权：
+
+```sh
+dsh plugin --profile web add github:Fish-under-sea/dsh-better-reasoning-effort-fish
+```
+
 链接本地检出（改源码用）：
 
 ```sh
@@ -86,8 +101,6 @@ dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
 安装后**重启 DSH** 并强制刷新浏览器。
-
-> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.5`。
 
 ## 使用
 
