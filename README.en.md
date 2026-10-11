@@ -77,7 +77,7 @@ dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
 dsh plugin --profile web add dsh-better-reasoning-effort-fish
 ```
 
-> DSH bundles pnpm with a `minimum-release-age` of 24 hours: installs within a day of a release resolve to the newest version old enough. Pin the version to install immediately, e.g. `dsh-better-reasoning-effort-fish@0.5.7`.
+> DSH bundles pnpm with a `minimum-release-age` of 24 hours: installs within a day of a release resolve to the newest version old enough. Pin the version to install immediately, e.g. `dsh-better-reasoning-effort-fish@0.5.8`.
 
 The release page also carries the packed tarball, which skips both the registry and the release-age wait. It is prebuilt, so pnpm executes nothing and asks for no build approval. The URL names one version, so an update replaces it:
 
