@@ -16,7 +16,7 @@
 
 </div>
 
-> **The current branch's source changes are unreleased.** This work is PR-only: the package stays at `0.5.8`, with no npm release or tag. The existing npm `0.5.8` **does not include this upstream sync or the eight-theme feature**. Use a [local build and link or explicit branch source](#installation) for these changes; the npm badge does not mean they have shipped.
+> **npm `0.5.9` is released.** It includes the upstream v0.5.4 sync and the eight runner themes. See [Installation](#installation) for install and upgrade commands. Browser interaction and real-DSH verification are still pending; see [Development & Testing](#development--testing).
 
 ## Original Author & Attribution (Please Read First)
 
@@ -82,11 +82,34 @@ This plugin brings both configuration surfaces back into the UI: edit them insid
 
 ## Installation
 
-Compatibility follows the union of peer ranges in `package.json`: the listed lines from `0.1.5-alpha.1` onward, now including `^0.2.1-alpha.1` (not a blanket guarantee for all future versions). DSH development dependencies use `^0.2.1-alpha.1`, aligned with upstream v0.5.4. Node requirement: `^22.19.0 || >=24`. **Dependency alignment does not mean this branch has been verified in a real DSH instance.**
+Compatibility follows the union of peer ranges in `package.json`: the listed lines from `0.1.5-alpha.1` onward, now including `^0.2.1-alpha.1` (not a blanket guarantee for all future versions). DSH development dependencies use `^0.2.1-alpha.1`, aligned with upstream v0.5.4. Node requirement: `^22.19.0 || >=24`. **Dependency alignment does not mean this release has been verified on every listed DSH version.**
 
-### Current source changes: build and link locally first
+### npm (recommended)
 
-Check out the branch containing these changes, then run in the repository root (adjust the link path and choose your profile):
+```sh
+# Desktop
+dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.9
+
+# Web
+dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.9
+```
+
+DSH's bundled pnpm uses a 24-hour `minimum-release-age`, so unpinned installs may temporarily resolve to an older release; pinning bypasses that wait. **Restart DSH** and hard-refresh the browser after installation.
+
+### Release tarball
+
+When the npm registry is unreachable, install the packaged artifact from the GitHub Release:
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.9/dsh-better-reasoning-effort-fish-0.5.9.tgz
+```
+
+This tarball and npm `0.5.9` are built from the same commit. Restart DSH and hard-refresh the browser afterwards.
+
+### Local source (development)
+
+Run in the repository root (adjust the link path and choose your profile):
 
 ```sh
 npm install && npm run build
@@ -95,40 +118,7 @@ dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
-Source edits do not update the old npm package. After rebuilding locally, restart DSH and hard-refresh the browser.
-
-### Explicit feature branch source
-
-An unqualified GitHub install does not guarantee these changes. Use this PR's `feat/fish-runner-themes` branch, or replace the branch name with a fixed commit from the PR:
-
-```sh
-dsh plugin --profile web add 'github:Fish-under-sea/dsh-better-reasoning-effort-fish#feat/fish-runner-themes'
-```
-
-pnpm runs `prepare` to build `lib/`. Add the exact `allowBuilds` key printed by the installer to the profile's `pnpm-workspace.yaml`, then repeat add. The key includes the resolved commit, so a new commit needs fresh approval. Unpushed local changes require the local build + link route.
-
-### Previous release: npm / release tarball
-
-These existing release instructions are retained for the **old release only, without the new changes**:
-
-```sh
-# Desktop (old npm 0.5.8)
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.8
-
-# Web (old npm 0.5.8)
-dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.8
-```
-
-DSH's bundled pnpm uses a 24-hour `minimum-release-age`, so unpinned installs may resolve to an older eligible release. Pinning bypasses that wait; **it cannot make unreleased source changes available on npm**.
-
-If an old release provides a prebuilt tarball, this form skips the registry and release-age wait. It is an old release artifact, not a build of this PR (replace `<version>` with an existing release):
-
-```sh
-dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
-```
-
-**Restart DSH** and hard-refresh the browser after installation.
+Source edits do not update the npm package. After rebuilding locally, restart DSH and hard-refresh the browser.
 
 ## Usage
 
@@ -216,7 +206,7 @@ See [`docs/compatibility-notes.md`](docs/compatibility-notes.md) for more compat
 
 ## Development & Testing
 
-Local checks for this PR: `typecheck` and the full `build` passed. `npm test` could not start because the Windows native `@rolldown/binding-win32-x64-msvc` binding was missing; this is not a passing test result. At the maintainer's request, only static checks followed. New tests remain unrun, and browser/real-DSH verification is incomplete; consult the actual PR CI results.
+Local checks before this release (Node 24.14.0, npm 11.9.0): `npm run typecheck`, `npm test` (24 test files, 518 tests, all passing), and `npm run build` all passed. Browser interaction and real-DSH verification are still unverified; these release notes do not treat dependency alignment or asset previews as runtime evidence.
 
 
 ```sh

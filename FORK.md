@@ -35,7 +35,7 @@ git diff 52b584c 2d68b65cc641cd85e95384c859a2bc3de23d9e08 -- src tests scripts p
 | `scripts/build-client.mjs` / `src/client/assets.d.ts` / `assets/` | 八张运行 PNG 经 esbuild `dataurl` 内嵌，不引入静态资源路由；保留完整第三方 MIT 许可 |
 | 六份根目录说明文档 | 用户 README 保持 Fish 说明；两份 `original` 备份保持固定上游提交原文与身份 |
 
-本次同步还包括官方 `modelOverrides` 目录安全写入、未知模型不自动填充，以及默认档守护与活动报告。DSH peer 范围新增 `^0.2.1-alpha.1`、DSH devDependencies 对齐上游 `^0.2.1-alpha.1`；合入时保留包版本 `0.5.8`，不要误改为上游包名或版本 `0.5.4`。依赖声明对齐不等于本 Fork 已在真实 DSH 验证。
+本次同步还包括官方 `modelOverrides` 目录安全写入、未知模型不自动填充，以及默认档守护与活动报告。DSH peer 范围新增 `^0.2.1-alpha.1`、DSH devDependencies 对齐上游 `^0.2.1-alpha.1`；本次发布版本为 `0.5.9`，不要误改为上游包名或版本 `0.5.4`。依赖声明对齐不等于本 Fork 已在真实 DSH 验证。
 
 ### 原始 README 备份
 
@@ -57,11 +57,16 @@ git show 2d68b65:README.zh.md > README_ZH.original.md
 - `assets/third-party/dsh-reasoning-effort.LICENSE` 完整保留来源 MIT 版权、授权及免责条款；不得只保留链接或短句替代完整许可。
 - `assets/` 的八张 `*-runner-strip.png` 运行素材经 `dataurl` 内嵌进客户端 bundle；不要把参考预览当成运行资源，也不要另开资源路由。
 
-## 本次交付：只 PR，不发布
+## 发布记录：0.5.9
 
-**版本保持 `0.5.8`，不发布 npm、不创建 tag。** 现有 npm `0.5.8` 不含此次新功能；当前 README 必须明确区分本分支源码与旧发布版，安装优先本地 build + link，或在分支推送后明确指定分支 / commit。尚未推送的本地修改不能通过 GitHub 安装取得。
+`0.5.9` 是本次上游 v0.5.4 同步与八主题功能的正式发布版本。
 
-本次不执行 `npm publish`、打 tag 或发布 workflow，也不把上游测试门禁、素材图或源码检查描述成本分支真实 DSH 运行验证。实际验证与测试由主任务统一完成；此文档更新本身不运行测试。
+- **npm**：`dsh-better-reasoning-effort-fish@0.5.9`。旧包曾于 2026-10-21 被整包删除，registry 已无历史版本；本次按首次发布流程在本机执行 `npm publish --access public --ignore-scripts`。
+- **GitHub Release**：`v0.5.9`，资产为同一 commit 构建的 `dsh-better-reasoning-effort-fish-0.5.9.tgz`，可直接用于 `dsh plugin add <tarball URL>`。
+- **历史版本**：`v0.5.8` 的 tag 与 release 保留在旧提交 `0f3f053`，不移动、不覆盖；它不包含本次同步与主题功能。
+- **后续 tag 发布**：`publish.yml` 使用 npm Trusted Publishing。包被删除后需要先在 npm 网页重新配置 GitHub Actions 发布者（仓库名 + `publish.yml`）；未配置前，新的 tag 发布会失败，应继续在本机完成首次发布。`publish.yml` 对已经存在于 registry 的版本会跳过重复发布，避免本机发布后 tag 推送把 CI 标红。
+
+发布不改变验证边界：本地 `typecheck`、`npm test`（24 个测试文件、518 项）与 `build` 已通过，浏览器交互与真实 DSH 运行仍未验证。
 
 ## 本机开发备注（DSH 文件沙箱）
 

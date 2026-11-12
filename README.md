@@ -16,7 +16,7 @@
 
 </div>
 
-> **当前分支源码功能尚未发布。** 本次仅准备 PR，包版本仍为 `0.5.8`，不发布 npm、不打 tag；现有 npm `0.5.8` **不含此次上游同步与八主题功能**。体验本次改动请使用[本地构建并链接或指定分支源码](#安装)，不要把 npm 徽章理解为新功能已上线。
+> **npm `0.5.9` 已发布。** 本版包含上游 v0.5.4 同步与八款大肥鱼主题，安装与升级方式见[安装](#安装)。浏览器交互与真实 DSH 运行验证仍待补充，详见[开发与测试](#开发与测试)。
 
 ## 原作者与授权（请先读）
 
@@ -82,11 +82,34 @@
 
 ## 安装
 
-兼容声明以 `package.json` 的联合 peer 范围为准，覆盖 `0.1.5-alpha.1` 起的列明版本线，并新增 `^0.2.1-alpha.1`（不是对所有未来版本的无限保证）；DSH 开发依赖同步为 `^0.2.1-alpha.1`，与上游 v0.5.4 对齐。Node 要求 `^22.19.0 || >=24`。**这表示依赖范围对齐，不表示本分支已经在真实 DSH 验证。**
+兼容声明以 `package.json` 的联合 peer 范围为准，覆盖 `0.1.5-alpha.1` 起的列明版本线，并新增 `^0.2.1-alpha.1`（不是对所有未来版本的无限保证）；DSH 开发依赖同步为 `^0.2.1-alpha.1`，与上游 v0.5.4 对齐。Node 要求 `^22.19.0 || >=24`。**这表示依赖范围对齐，不表示本版已在所有列明 DSH 版本中验证。**
 
-### 本次源码功能：优先本地构建并链接
+### npm（推荐）
 
-检出包含此次改动的分支后，在仓库根目录执行（按实际目录修改链接路径，选择你使用的 profile）：
+```sh
+# 桌面版
+dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.9
+
+# Web 版
+dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.9
+```
+
+DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时，不指定版本时可能暂时解析到更旧的版本；指定版本可跳过该等待。安装后**重启 DSH** 并强制刷新浏览器。
+
+### release tarball
+
+npm registry 不可达时，可直接安装 GitHub Release 的打包成品：
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.9/dsh-better-reasoning-effort-fish-0.5.9.tgz
+```
+
+该 tarball 与 npm `0.5.9` 由同一 commit 构建。安装后同样需要重启 DSH 并强制刷新浏览器。
+
+### 本地源码（开发）
+
+在仓库根目录执行（按实际目录修改链接路径，选择你使用的 profile）：
 
 ```sh
 npm install && npm run build
@@ -95,40 +118,7 @@ dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
 ```
 
-源码改动不会自动进入旧 npm 包；本地重新构建后，重启 DSH 并强制刷新浏览器。
-
-### 指定本次功能分支源码
-
-未指定分支的 GitHub 安装不保证包含本次改动。可指定本次 PR 的 `feat/fish-runner-themes` 分支，或把分支名替换为该 PR 的固定 commit：
-
-```sh
-dsh plugin --profile web add 'github:Fish-under-sea/dsh-better-reasoning-effort-fish#feat/fish-runner-themes'
-```
-
-pnpm 会通过 `prepare` 构建 `lib/`，需按安装器打印的确切键，在 profile 的 `pnpm-workspace.yaml` 中允许对应 `allowBuilds` 条目后重新 add。该键包含解析到的 commit，新 commit 需要重新授权。本地未推送的修改只能走本地 build + link。
-
-### 旧发布版：npm / release tarball
-
-以下保留既有发布版用法，**只能取得旧发布版，不含此次新功能**：
-
-```sh
-# 桌面版（旧 npm 0.5.8）
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.8
-
-# Web 版（旧 npm 0.5.8）
-dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.8
-```
-
-DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时，未指定版本时可能解析到足够旧的版本；指定版本只能绕过该等待，**不能让尚未发布的源码功能出现在 npm 中**。
-
-若对应旧 release 提供打包好的 tarball，可用以下形式跳过 registry 与发布等待；它是旧版本成品，不是此次 PR 的构建产物（`<version>` 需替换为实际存在的 release）：
-
-```sh
-dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
-```
-
-安装后**重启 DSH** 并强制刷新浏览器。
+源码改动不会自动进入 npm 包；本地重新构建后，重启 DSH 并强制刷新浏览器。
 
 ## 使用
 
@@ -216,7 +206,7 @@ dsh plugin --profile web remove dsh-reasoning-effort
 
 ## 开发与测试
 
-本次 PR 的本地检查：`typecheck` 与完整 `build` 已通过；`npm test` 因缺少 Windows 的 `@rolldown/binding-win32-x64-msvc` 原生绑定而未能启动，不能视为测试通过。按维护者选择，后续仅做静态核对，新增测试未运行，浏览器与真实 DSH 验证未完成；最终以 PR CI 的实际结果为准。
+本版发布前的本地检查（Node 24.14.0、npm 11.9.0）：`npm run typecheck`、`npm test`（24 个测试文件、518 项全部通过）与 `npm run build` 均通过。浏览器交互与真实 DSH 运行仍未验证，发布说明不把依赖对齐或素材预览当作运行证据。
 
 
 ```sh
