@@ -9,24 +9,23 @@
  */
 import { readFileSync } from 'node:fs'
 
-const path = new URL('../src/client/styles.ts', import.meta.url)
-const source = readFileSync(path, 'utf8')
+for (const [file, literal] of [['styles.ts', 'STYLES'], ['runner-styles.ts', 'RUNNER_STYLES']]) {
+  const source = readFileSync(new URL(`../src/client/${file}`, import.meta.url), 'utf8')
+  const open = source.indexOf(`export const ${literal} = \``)
+  if (open < 0) throw new Error(`${file}: ${literal} literal not found`)
+  const start = source.indexOf('`', open)
+  const end = source.lastIndexOf('`')
+  if (end <= start) throw new Error(`${file}: ${literal} literal is not terminated`)
 
-const open = source.indexOf('export const STYLES = `')
-if (open < 0) throw new Error('styles.ts: STYLES literal not found')
-const start = source.indexOf('`', open)
-const end = source.lastIndexOf('`')
-if (end <= start) throw new Error('styles.ts: STYLES literal is not terminated')
-
-const body = source.slice(start + 1, end)
-const strays = [...body.matchAll(/`/g)]
-if (strays.length > 0) {
-  const lineOf = (offset) => source.slice(0, start + 1 + offset).split('\n').length
-  const where = strays.map(match => `line ${lineOf(match.index)}`).join(', ')
-  throw new Error(
-    `styles.ts: ${strays.length} stray backtick(s) inside the STYLES template at ${where} — `
-    + 'a backtick inside the literal ends it and breaks the build. Use plain text or quotes in CSS comments.',
-  )
+  const body = source.slice(start + 1, end)
+  const strays = [...body.matchAll(/`/g)]
+  if (strays.length > 0) {
+    const lineOf = (offset) => source.slice(0, start + 1 + offset).split('\n').length
+    const where = strays.map(match => `line ${lineOf(match.index)}`).join(', ')
+    throw new Error(
+      `${file}: ${strays.length} stray backtick(s) inside ${literal} at ${where} — `
+      + 'a backtick inside the literal ends it and breaks the build. Use plain text or quotes in CSS comments.',
+    )
+  }
+  console.log(`check-styles: ${literal} literal has no stray backticks`)
 }
-
-console.log('check-styles: STYLES literal has no stray backticks')

@@ -16,6 +16,8 @@
 
 </div>
 
+> **The current branch's source changes are unreleased.** This work is PR-only: the package stays at `0.5.8`, with no npm release or tag. The existing npm `0.5.8` **does not include this upstream sync or the eight-theme feature**. Use a [local build and link or explicit branch source](#installation) for these changes; the npm badge does not mean they have shipped.
+
 ## Original Author & Attribution (Please Read First)
 
 | Item | Details |
@@ -25,8 +27,8 @@
 | Original repository | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
 | Upstream npm package | `dsh-better-reasoning-effort` (**belongs to the original author; this fork cannot reuse the name**) |
 | This fork's npm package | **`dsh-better-reasoning-effort-fish`** |
-| License | **MIT**, copyright held by the original author (the [`LICENSE`](LICENSE) file in this repo **is unmodified**) |
-| Fork baseline | Upstream `master` = **v0.5.2** (commit `52b584c`) |
+| License | **MIT**; upstream [`LICENSE`](LICENSE) is unmodified; see [`NOTICE.md`](NOTICE.md) for the visual source's separate MIT notice |
+| Fork baseline | [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) `master` = **v0.5.4** (commit [`2d68b65cc641cd85e95384c859a2bc3de23d9e08`](https://github.com/HaoyueQin/dsh-better-reasoning-effort/commit/2d68b65cc641cd85e95384c859a2bc3de23d9e08); synced from v0.5.2 `52b584c`) |
 | Nature of this fork | **Personal customization (fork)** — neither original nor official; the upstream README is preserved intact as [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
 
 > Full details on attribution and the scope of changes are in [`NOTICE.md`](NOTICE.md). Please preserve the original author's credit when redistributing.
@@ -41,16 +43,31 @@ This plugin brings both configuration surfaces back into the UI: edit them insid
 |------------|-------------|
 | **In-page editor** | An "Options" block appears in each model row's disclosure on the official Models page (reasoning effort, input modalities, endpoint compatibility); changes commit with the card's own **Save** and are discarded together on **Cancel** |
 | **Auto-adapt** | One click fills recommended levels, wire spellings and modalities: built-in knowledge base (65 entries across 15 vendors) + wire-protocol inference + same-origin `/models` probe; every suggestion is labeled by confidence |
-| **Auto-fill** | Models without a declaration receive a recommended one at boot, and newly added models mid-session are filled in too (disable with `autofill: false` / `modalityAutofill: false`) |
+| **Auto-fill** | At boot and when models are added, only curated official knowledge-base matches are filled automatically; unknown models stay unchanged until the user accepts Auto-adapt (disable with `autofill: false` / `modalityAutofill: false`); explicit declarations, `false`, and deliberately-unset markers are preserved |
+| **Catalog-safe writes** | Routes using DSH's official `modelOverrides` retain their installed catalog; only the edited model override is written |
 | **Three intents** | All levels off = unset (back to inheritance); only `off` checked = disable reasoning; levels armed = write the declaration |
-| **Composer effort slider** | The official model menu popup is replaced with an upstream-style level slider (drag / keyboard, optimistic commit with rollback); the bottom-right trigger button is untouched |
+| **Composer effort slider** | The official model menu popup becomes an eight-theme runner slider (drag / keyboard, optimistic commit with rollback), with a model row opening the official model list; the bottom-right trigger stays untouched. Model switches retain per-session effort memory, while per-model defaults take priority across sessions |
 | **Per-model default effort** | A "Default effort" picker on each model row, stored in the settings document; every new session starts the model at that level |
 | **Request headers & User-Agent** | Edit the official `headers` field inside the provider card (masked display, path-merged), with per-origin fetch-layer `user-agent` takeover; same-origin `/models` probes are covered |
 | **Defensive injection** | Everything keys off the official page's DOM; if an official upgrade changes the structure, injection pauses automatically — the official page is unaffected |
 
-**What this fork changes from upstream: it yields the `settings.models.provider-card` slot so it no longer conflicts with dsh-web's model-capabilities plugin.** See [Compatibility & Boundaries](#compatibility--boundaries).
+**This fork preserves its separate package name, plugin id, host routes, and slot-free provider-card DOM injection fix. On top of upstream v0.5.4, it adds eight model-family runner themes enabled by default.** See [Runner Themes](#runner-themes) and [Compatibility & Boundaries](#compatibility--boundaries).
 
-## In Action
+## Runner Themes
+
+- **Eight themes**: DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax. Model `id` / `name` takes precedence, provider is the fallback, and unrecognized models use DeepSeek; an aggregator's name does not override a recognized model family.
+- **No extra toggle**: characters are enabled by default within the Composer slider, reusing its existing switch and `dsh-better-reasoning-effort.slider.enabled` preference key. Users who disabled the slider keep it disabled; nothing forcibly re-enables it, and no character-only setting is added.
+- **Light/dark and motion**: matching light/dark tracks, sprite-based running and radiation effects; dragging accelerates the runner and boosts the effects. `prefers-reduced-motion: reduce` uses a static presentation while keeping effort selection available.
+- **Embedded assets**: esbuild's `dataurl` loader embeds the eight runtime PNGs in `lib/client.js`, with no additional asset route. Themes affect presentation only, not model capabilities or the reasoning-effort protocol.
+- **Source**: [HanaAyane/dsh-reasoning-effort PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9), contributed by [xihucuyudaichi](https://github.com/xihucuyudaichi), pinned to commit [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea). The full MIT license is retained at [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE); see [`NOTICE.md`](NOTICE.md) for attribution.
+
+## Preview
+
+<p align="center">
+  <img src="assets/readme/all-themes.jpg" alt="Eight-theme reference preview from asset PR #9, not a screenshot of this plugin running in DSH" width="900">
+</p>
+
+> **This is the asset PR's reference preview, not a real DSH runtime screenshot of this plugin.** The existing editor illustrations are retained below; these changes have not been verified in a real DSH instance.
 
 <p align="center">
   <picture>
@@ -65,39 +82,50 @@ This plugin brings both configuration surfaces back into the UI: edit them insid
 
 ## Installation
 
-Requires DeepSeek Harness **`0.1.5-alpha.1` or later** (per the peerDependencies range); compiled and gated against `0.2.0-rc.2`. Node requirement: `^22.19.0 || >=24`.
+Compatibility follows the union of peer ranges in `package.json`: the listed lines from `0.1.5-alpha.1` onward, now including `^0.2.1-alpha.1` (not a blanket guarantee for all future versions). DSH development dependencies use `^0.2.1-alpha.1`, aligned with upstream v0.5.4. Node requirement: `^22.19.0 || >=24`. **Dependency alignment does not mean this branch has been verified in a real DSH instance.**
 
-Install from npm (recommended):
+### Current source changes: build and link locally first
 
-```sh
-# Desktop profile
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
-
-# Web profile
-dsh plugin --profile web add dsh-better-reasoning-effort-fish
-```
-
-> DSH bundles pnpm with a `minimum-release-age` of 24 hours: installs within a day of a release resolve to the newest version old enough. Pin the version to install immediately, e.g. `dsh-better-reasoning-effort-fish@0.5.8`.
-
-The release page also carries the packed tarball, which skips both the registry and the release-age wait. It is prebuilt, so pnpm executes nothing and asks for no build approval. The URL names one version, so an update replaces it:
-
-```sh
-dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
-```
-
-From GitHub source, for development and review rather than normal installs. pnpm runs the `prepare` hook to build `lib/`, and allows that only once an `allowBuilds` entry exists. The installer prints the exact key, which names the resolved commit: add it to the profile's `pnpm-workspace.yaml` and repeat the add. A new commit changes that key, so every release needs re-approval:
-
-```sh
-dsh plugin --profile web add github:Fish-under-sea/dsh-better-reasoning-effort-fish
-```
-
-Link a local checkout (for source changes):
+Check out the branch containing these changes, then run in the repository root (adjust the link path and choose your profile):
 
 ```sh
 npm install && npm run build
 dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
+# Or the Web profile
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
+```
+
+Source edits do not update the old npm package. After rebuilding locally, restart DSH and hard-refresh the browser.
+
+### Explicit feature branch source
+
+An unqualified GitHub install does not guarantee these changes. Use this PR's `feat/fish-runner-themes` branch, or replace the branch name with a fixed commit from the PR:
+
+```sh
+dsh plugin --profile web add 'github:Fish-under-sea/dsh-better-reasoning-effort-fish#feat/fish-runner-themes'
+```
+
+pnpm runs `prepare` to build `lib/`. Add the exact `allowBuilds` key printed by the installer to the profile's `pnpm-workspace.yaml`, then repeat add. The key includes the resolved commit, so a new commit needs fresh approval. Unpushed local changes require the local build + link route.
+
+### Previous release: npm / release tarball
+
+These existing release instructions are retained for the **old release only, without the new changes**:
+
+```sh
+# Desktop (old npm 0.5.8)
+dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.8
+
+# Web (old npm 0.5.8)
+dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.8
+```
+
+DSH's bundled pnpm uses a 24-hour `minimum-release-age`, so unpinned installs may resolve to an older eligible release. Pinning bypasses that wait; **it cannot make unreleased source changes available on npm**.
+
+If an old release provides a prebuilt tarball, this form skips the registry and release-age wait. It is an old release artifact, not a build of this PR (replace `<version>` with an existing release):
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
 ```
 
 **Restart DSH** and hard-refresh the browser after installation.
@@ -122,11 +150,12 @@ The host side accepts the following optional config keys (written to the plugin'
 
 | Key | Default | Values | Description |
 |-----|---------|--------|-------------|
-| `autofill` | `true` | `true` / `false` | Auto-fill undeclared models with recommended declarations at boot |
+| `autofill` | `true` | `true` / `false` | At boot and when added, auto-fill only undeclared models matching the curated official knowledge base |
 | `modalityAutofill` | `true` | `true` / `false` | Whether the boot fill also covers input-modality declarations |
 | `probeTimeoutMs` | `15000` | positive integer | `/models` probe request timeout (ms) |
 | `bootRetryDelaysMs` | `[1000, 2000, 4000, 8000, 16000, 30000]` | positive integer array | Retry delays after boot auto-fill failures (ms) |
-| `defaultGuard` | `true` | `true` / `false` | Map effort-less calls on forced-thinking ladders to the vendor default instead of sending `thinking: disabled` |
+| `defaultGuard` | `true` | `true` / `false` | Map effort-less calls on forced-thinking ladders to the vendor default instead of sending `thinking: disabled`; respect route-level `reasoning` defaults |
+| `uaOverride` | `true` | `true` / `false` | Apply configured `user-agent` overrides per origin; set `false` to leave this layer to another rewriter |
 
 Example:
 
@@ -140,18 +169,19 @@ Example:
         probeTimeoutMs: 15000
         bootRetryDelaysMs: [1000, 2000, 4000, 8000, 16000, 30000]
         defaultGuard: true
+        uaOverride: true
 ```
 
 ## Compatibility & Boundaries
 
-**This fork makes exactly one fix**: the request-header editor no longer occupies the official `settings.models.provider-card` slot — it mounts on the card's own editor container instead.
+**This fork retains its existing compatibility fix**: the request-header editor no longer occupies the official `settings.models.provider-card` slot — it mounts on the card's own editor container instead. Together with the upstream v0.5.4 sync and runner-theme port, this is no longer a single-fix fork.
 
 The reason: the official slot is a **keyed slot** — the registry accepts only one entry per `(key, priority)` pair, and a second registration throws. The dsh-web suite's `@linxin666/dsh-client-ui-model-capabilities` (model-capabilities panel) registers the same `llm-pi-ai` key at the same default priority `0`. When both plugins occupy the slot, only one registers successfully; the other's entire UI **silently disappears**. Because dsh-web loads via an async shell row, the loser is the **model-capabilities panel** (per-model reasoning effort / image input).
 
 | | Before fix | After fix |
 |---|---|---|
 | `settings.models.provider-card` slot | Occupied by this plugin | **Fully yielded to `model-capabilities`** |
-| Model-capabilities panel | Silently disappeared | Displays normally |
+| Model-capabilities panel | May silently disappear on registration conflict | No longer competes with this plugin for the slot (not reverified in real DSH for this change) |
 | Request-header editor | In the card (occupying the slot) | **Still in the card** — mounted on the card's own editor container |
 
 Changes land in [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts) (new), [`src/client/index.ts`](src/client/index.ts) (no longer registers the slot), and [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts) (wired into page scanning). Regression guards live in [`tests/client.spec.tsx`](tests/client.spec.tsx) and [`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx).
@@ -173,7 +203,10 @@ dsh plugin --profile web remove dsh-reasoning-effort
 - The modality vocabulary follows pi-ai's core (`text` / `image` today); wider gateway support (PDF / audio / video) cannot be declared until the core vocabulary grows — this is by design.
 - Name-heuristic modality advice (vision-flavored ids) is deliberately labeled low-confidence; verify before relying on it.
 - Self-hosted relays: auto-fill pins `supportsDeveloperRole: false` on routes no official host claims; explicit values are never overwritten.
-- Forced-thinking models (ladders without `off`, e.g. GLM-5.3): effort-less calls map to the vendor default instead of sending `thinking: disabled` — set `defaultGuard: false` to restore raw behavior.
+- Forced-thinking models (ladders without `off`, e.g. GLM-5.3): effort-less calls map to the vendor default instead of sending `thinking: disabled` — set `defaultGuard: false` to restore raw behavior. If a route already declares a `reasoning` default, the official adapter resolves `options.reasoningEffort ?? profile.reasoning`; the guard steps aside rather than overriding that default.
+- The default guard reports rewritten-call counts and the most recent model in the request-header section; the same report is available at this fork's `/dsh-better-reasoning-effort-fish/headers-config`, distinguishing an installed-but-idle guard from an active one.
+- Unknown models are not auto-filled. Auto-adapt may still offer a low-confidence suggestion for explicit user review. Runner-family detection is a naming heuristic, not capability detection; falling back to the DeepSeek theme does not classify a model as DeepSeek.
+- Motion depends on browser Canvas / animation support; reduced-motion uses static characters and effects. The reference preview does not establish the final layout across DSH versions, and these changes have not been verified in a real DSH instance.
 - **Credentials inside `headers` are not redacted on disk**: the read-only view masks them, but the settings document still holds them in clear text — treat it like an API key.
 - **The request-header section depends on the official card's editor container**: if the official build changes that structure, the section stops appearing — it never breaks the page. This is the fork's tradeoff vs. upstream: no slot occupancy, in exchange for coexistence with dsh-web plugins.
 - **Only one `user-agent` rewrite should be active**: sibling header plugins land on the same layer; the last writer wins. The plugin detects and reports known siblings but cannot cover unknown cases.
@@ -182,6 +215,9 @@ dsh plugin --profile web remove dsh-reasoning-effort
 See [`docs/compatibility-notes.md`](docs/compatibility-notes.md) for more compatibility details, and [`docs/supported-models.md`](docs/supported-models.md) for the supported-models list.
 
 ## Development & Testing
+
+Local checks for this PR: `typecheck` and the full `build` passed. `npm test` could not start because the Windows native `@rolldown/binding-win32-x64-msvc` binding was missing; this is not a passing test result. At the maintainer's request, only static checks followed. New tests remain unrun, and browser/real-DSH verification is incomplete; consult the actual PR CI results.
+
 
 ```sh
 npm run typecheck   # tsc strict check
@@ -199,4 +235,4 @@ This package lives in a **standalone repository** (<https://github.com/Fish-unde
 
 ## License
 
-[MIT](LICENSE), copyright held by the original author **HaoyueQin**; new code in this fork is also released under MIT. Please preserve [`LICENSE`](LICENSE) and [`NOTICE.md`](NOTICE.md) when redistributing.
+[MIT](LICENSE), retaining the upstream copyright notice for **HaoyueQin**. Runner assets and ported code also retain **HanaAyane**'s MIT notice, with credit to contributor **xihucuyudaichi**; these are not Fish-original work. New fork code is also provided under MIT. Preserve [`LICENSE`](LICENSE), [`NOTICE.md`](NOTICE.md), and [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE) when redistributing.

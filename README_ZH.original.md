@@ -25,10 +25,6 @@
   <img src="assets/models-page-effort-editor.png" alt="官方「模型」页模型行展开区内注入的思考强度编辑器" width="720">
 </p>
 
-## 本 fork 的改动
-
-本机维护的 fork，基线为上游 0.5.2，相对上游只有一处必要改动：**请求头编辑器不再占用官方 `settings.models.provider-card` 席位**——该席位是 keyed slot，同一 `(key, priority)` 只允许一个注册者，而 dsh-web 全家桶的「模型能力」插件注册的正是同一个 `llm-pi-ai` key，两边抢占会让其中一方的整块界面静默消失。现在席位完整让给它，请求头编辑器改挂官方卡片自身的编辑器容器，两侧功能都保留。完整说明（含跟随上游与本机沙箱下的开发命令）见 **[FORK.md](FORK.md)**。
-
 ## 为什么需要它
 
 `llm-pi-ai` 适配器原生支持每模型声明 `reasoningEfforts` 与 `input`，但官方「模型」页编辑卡刻意不暴露这两个字段。于是第三方模型在 Composer 里**没有思考档位选择器**，只有官方 DeepSeek API 能设思考强度，手工声明的模型被当作**纯文本**，想配置只能手写 `settings.yaml` 块。本插件把这两份配置能力都搬回 UI：官方模型编辑卡内直接编辑，加一键自动适配。
@@ -37,8 +33,9 @@
 
 - **官方页内注入** — 官方「模型」页每个模型行的展开区内出现「选项」编辑块（思考强度、输入模态、端点兼容），随卡片自身的**「保存」**统一提交；改动即时进入待写入，「取消」则与卡片字段一起丢弃。
 - **自动适配** — 一键填入推荐档位、线上取值与模态，来源是内置模型知识库（15 家厂商 65 个条目，见[支持的模型](docs/supported-models.md)）、线协议推断，以及对供应商原始 `/models` 列表的同源探测；每条建议标注置信度，参考容量以只读提示出现、自行照抄。
-- **自动填充** — 未声明的模型在启动时补一份推荐声明，会话中新增的也会补写（`autofill: false` / `modalityAutofill: false` 可关）；已声明、显式 `false`、刻意撤销的标记一律不动。
+- **自动填充** — 只有命中官方知识库的模型才会在启动时或会话中新增时自动补写（`autofill: false` / `modalityAutofill: false` 可关）；未知模型保持原样，需用户明确接受「自动适配」建议。
 - **三种意图** — 全不勾 = 取消声明（回到继承）；只勾 off = 禁用推理；勾选档位 = 写入声明。
+- **目录安全写入** — 使用 DSH 官方 `modelOverrides` 的路由保留已安装模型目录，只写入当前编辑模型的覆盖项。
 - **Composer 思考强度滑块** — 官方模型菜单的弹出体被替换为上游风格的档位滑块（拖动 / 键盘，乐观提交、被拒回滚），附一行模型条目打开官方模型列表；右下角触发钮保持原样。切换模型会通过会话记忆链沿用你的档位（issue #4 的每模型默认档跨会话优先）。
 - **每模型默认思考强度** — 模型行上的「默认思考强度」选择器，存在设置文档里，每个新会话打开该模型即用它。
 - **请求头与 User-Agent** — 提供商卡片内编辑官方的 `headers` 字段（掩码显示、路径合并、随卡片保存），并在 fetch 层按 origin 精确接管 `user-agent` 的覆盖（官方适配器保留该名称）；同源 `/models` 探测一并覆盖，冲突时提示而不猜。
@@ -47,11 +44,11 @@
 
 ## 支持的模型
 
-自动适配知识库内置 **15 家厂商 65 个条目**（DeepSeek、OpenAI、Anthropic Claude、Gemini、Grok、Qwen、GLM、Kimi、Mistral、MiniMax、MiMo、豆包、混元、阶跃、文心——2026-08/09 逐条对照官方文档复核，含视觉变体与无档位控制家族）。完整表格——匹配写法、档位 → 线上取值阶梯、默认档、模态、参考容量——见 **[docs/supported-models.md](docs/supported-models.md)**（由 [`src/knowledge.ts`](src/knowledge.ts) 生成，代码是权威数据源）。未列出的模型回退到协议推断 + 通用档位，可手动调整。
+自动适配知识库内置 **15 家厂商 65 个条目**（DeepSeek、OpenAI、Anthropic Claude、Gemini、Grok、Qwen、GLM、Kimi、Mistral、MiniMax、MiMo、豆包、混元、阶跃、文心——2026-08/09 逐条对照官方文档复核，含视觉变体与无档位控制家族）。完整表格——匹配写法、档位 → 线上取值阶梯、默认档、模态、参考容量——见 **[docs/supported-models.md](docs/supported-models.md)**（由 [`src/knowledge.ts`](src/knowledge.ts) 生成，代码是权威数据源）。未列出的模型不会被自动填充；用户仍可手动审核低置信度的「自动适配」建议。
 
 ## 安装
 
-需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按行联合的 peer 范围；`0.1.2-rc` / `0.1.3-alpha` 线不再支持——请使用插件 `0.3.7`）。当前对照 `0.2.0-rc.2` 编译与门禁。逐内核 seam 核查记录见 [docs/compatibility-notes.md](docs/compatibility-notes.md)。
+需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按行联合的 peer 范围；`0.1.2-rc` / `0.1.3-alpha` 线不再支持——请使用插件 `0.3.7`）。当前对照 `0.2.0-rc.2` 与 `0.2.1-alpha` 线编译与门禁。逐内核 seam 核查记录见 [docs/compatibility-notes.md](docs/compatibility-notes.md)。
 
 从 npm 安装（dsh 的 web profile 下）：
 
@@ -146,7 +143,7 @@ npm test            # vitest：知识库 / 推断 / 自动填充 / DOM 注入 / 
 npm run build       # lib/*.js + lib/client.js（module-loader bundle）
 ```
 
-对照 `0.2.0-rc.2` 官方包编译与门禁；逐内核记录见 [docs/compatibility-notes.md](docs/compatibility-notes.md)。
+对照 `0.2.0-rc.2` 与 `0.2.1-alpha.2` 官方包编译与门禁；逐内核记录见 [docs/compatibility-notes.md](docs/compatibility-notes.md)。
 
 ## 已知限制
 
@@ -157,7 +154,8 @@ npm run build       # lib/*.js + lib/client.js（module-loader bundle）
 - 模态词汇跟随 pi-ai 核心（当前 `text` / `image`）；更宽的网关支持（PDF / 音频 / 视频）按家族记录在案，核心词汇扩充前声明不了是设计使然。
 - 命名启发式的模态建议（视觉风味 id）刻意标注低置信度，使用前请核对。
 - 自建中转：对没有官方 host 认领的路由，自动填充会钉 `supportsDeveloperRole: false`（部分上游拒绝 `developer` 角色）；显式值永不被覆盖。
-- 强制思考模型（无 `off` 的梯子，如 GLM-5.3）：无档位调用自动落厂商默认档而不是发 `thinking: disabled`——设 `defaultGuard: false` 可恢复原行为。
+- 强制思考模型（无 `off` 的梯子，如 GLM-5.3）：无档位调用自动落厂商默认档而不是发 `thinking: disabled`——设 `defaultGuard: false` 可恢复原行为。路由级 `reasoning` 默认档可用官方式覆盖同一批调用、无需 guard：适配器取 `options.reasoningEffort ?? profile.reasoning`，配了默认档的路由不会走到关闭档（guard 也会为它让路）。
+- guard 的活动情况在请求头区域内报告（已改写 N 次无档位调用、最近一次是哪个模型），因此「已安装但闲置」与「正在工作」可以区分；同一份报告也由 `/dsh-better-reasoning-effort/headers-config` 提供。
 - **`headers` 中的凭据在磁盘上不脱敏**：只读视图会掩码，但设置文档仍明文保存——请当 API key 对待。
 - **请求头区域的编辑态检测读取非官方信号**（官方行没有编辑器状态的 data 属性）；官方若改名该类词根，区域会停止出现——绝不弄坏页面。
 - **同一时间只应有一个 `user-agent` 改写器**：同类 header 插件落在同一层，后写者赢；插件会检测并提示已知同类，但不覆盖未知情况。

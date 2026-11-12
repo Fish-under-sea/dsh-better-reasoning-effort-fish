@@ -111,7 +111,34 @@ describe('effectiveEffortIndex', () => {
 })
 
 describe('ComposerSlider commit', () => {
-  it('renders the upstream visual skeleton (track, fx canvas, flare, white knob) and rests on medium', async () => {
+  it('切换模型后自动更新主题，聚合供应商不覆盖模型品牌', async () => {
+    const { directory, update } = fixture()
+    const { root, container } = await mount(directory)
+    await vi.waitFor(() => expect(container.querySelector('.bre-effort')?.getAttribute('data-bre-theme')).toBe('qwen'))
+    update({
+      ...directory.store.getSnapshot(),
+      current: { provider: 'aliyun', model: 'claude-sonnet-4', reasoningEffort: 'medium' },
+      groups: [{ id: 'aliyun', name: 'Aliyun', models: [{
+        ...directory.store.getSnapshot().groups[0]!.models[0]!,
+        id: 'claude-sonnet-4', name: 'Claude Sonnet',
+      }] }],
+    })
+    await vi.waitFor(() => expect(container.querySelector('.bre-effort')?.getAttribute('data-bre-theme')).toBe('claude'))
+    expect(container.querySelector('.bre-effort')?.classList.contains('is-chibi')).toBe(true)
+    root.unmount()
+  })
+
+  it('从无档位模型切换到有档位模型时初始化特效画布', async () => {
+    const { directory, update } = fixture({ current: null })
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext')
+    const { root, container } = await mount(directory)
+    expect(getContext).not.toHaveBeenCalled()
+    update({ ...directory.store.getSnapshot(), current: { provider: 'aliyun', model: 'qwen-max' } })
+    await vi.waitFor(() => expect(getContext).toHaveBeenCalledWith('2d'))
+    expect(container.querySelector('.bre-effort.is-chibi')).not.toBeNull()
+    root.unmount()
+  })
+  it('默认呈现品牌小人、轨道、特效与滑块，并停在 medium', async () => {
     const { directory } = fixture()
     const { root, container } = await mount(directory)
     expect(container.querySelector('.bre-effort-track')).not.toBeNull()
@@ -119,10 +146,18 @@ describe('ComposerSlider commit', () => {
     expect(container.querySelector('.bre-effort-flare')).not.toBeNull()
     const knob = container.querySelector<HTMLElement>('.bre-effort-knob')
     expect(knob).not.toBeNull()
+    expect(knob?.getAttribute('aria-hidden')).toBe('true')
+    expect(container.querySelector('.bre-effort')?.classList.contains('is-chibi')).toBe(true)
+    expect(container.querySelector('.bre-effort')?.getAttribute('data-bre-theme')).toBe('qwen')
     const range = container.querySelector<HTMLInputElement>('input[type="range"]')!
     // The rest position lands in the mount-sync effect (passive effects flush
-    // asynchronously); wait for it instead of racing the commit.
+    // asynchronously); wait for it before checking the rest state.
     await vi.waitFor(() => expect(range.value).toBe('2'))
+    // The stops are felt while dragging, never drawn: no locator dots.
+    expect(container.querySelector('.bre-effort-markers')).toBeNull()
+    expect(container.querySelectorAll('.bre-effort-marker')).toHaveLength(0)
+    // The snap behind that feel: the range runs on whole stops.
+    expect(range.step).toBe('1')
     // The popover body replicates upstream: separator + model row after the slider.
     expect(container.querySelector('.bre-menu-separator')).not.toBeNull()
     const row = container.querySelector<HTMLButtonElement>('.bre-model-row')

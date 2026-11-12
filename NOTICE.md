@@ -1,45 +1,58 @@
 # 来源与署名（NOTICE）
 
-本仓库是 **dsh-better-reasoning-effort** 插件的**个人客制化版（fork）**，**不是原创项目**。
+本仓库是 **dsh-better-reasoning-effort** 插件的**个人客制化版（fork）**，**不是原创项目，也不是上游官方发行版**。本版既有兼容修复，也移植了第三方视觉素材与交互代码，不再是「只做一处修复」。
 
-## 原始项目
+## 原始项目与同步基线
 
 | 项目 | 内容 |
 |------|------|
-| 插件名 | **dsh-better-reasoning-effort** —— 为第三方模型声明思考强度（reasoning effort）与输入模态 |
-| 原作者 | **HaoyueQin** |
-| GitHub | [@HaoyueQin](https://github.com/HaoyueQin) |
+| 插件名 | **dsh-better-reasoning-effort** —— 为第三方模型声明思考强度与输入模态 |
+| 原作者 | **HaoyueQin** · [GitHub](https://github.com/HaoyueQin) |
 | 原仓库 | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
-| 上游 npm 包名 | `dsh-better-reasoning-effort` |
-| 许可证 | **MIT** |
-| 本版基线 | 上游 `master` = **v0.5.2**（commit `52b584c`） |
+| 上游 npm 包名 | `dsh-better-reasoning-effort`（不属于本 Fork） |
+| 许可证 | **MIT**，本仓库 [`LICENSE`](LICENSE) 保留上游原文与版权声明 |
+| 本版基线 | 上游 `master` **v0.5.4**，固定 commit [`2d68b65cc641cd85e95384c859a2bc3de23d9e08`](https://github.com/HaoyueQin/dsh-better-reasoning-effort/commit/2d68b65cc641cd85e95384c859a2bc3de23d9e08) |
+| 前一基线 | v0.5.2，`52b584c`；本次按两个基线之间的 diff 移植，不以独立仓库直接 merge 代替 |
+| 上游原始说明备份 | [`README.original.md`](README.original.md) = `git show 2d68b65:README.md`；[`README_ZH.original.md`](README_ZH.original.md) = `git show 2d68b65:README.zh.md` |
 
-## 本版（Fish-under-sea/dsh-better-reasoning-effort-fish）做了什么
+两份备份完整保留该固定提交的原文、上游包名与原始身份，作为署名备份；不是本 Fork 的使用说明，也不将其内容改写为 Fish。
 
-只做**一处修复**，未改动上游的思考强度编辑、自动适配、自动填充、Composer 滑块、每模型默认档与请求头接管逻辑：
+## 本版的改动范围
 
-**把官方 `settings.models.provider-card` 席位完整让出，请求头编辑器改挂官方卡片自身的编辑器容器。**
+### 上游同步
 
-原因是官方该席位为 **keyed slot**：注册表对同一 `(key, priority)` 只接受一个条目，第二个注册直接抛错。dsh-web 全家桶的 `@linxin666/dsh-client-ui-model-capabilities`（模型能力面板）注册的正是同一个 `llm-pi-ai` key、同一个默认优先级 `0`，于是两者只有一个能注册成功，另一个的整块界面**静默消失**（失败方用 `try/catch` 吞掉了异常，界面上没有任何报错）。因 dsh-web 聚合包走异步壳行加载，实际被挤掉的是**模型能力面板**（每模型思考强度 / 图片输入）。
+从 v0.5.2 同步至上述 v0.5.4，包括：官方 `modelOverrides` 目录安全写入；自动填充仅处理命中精选官方知识库的模型、未知模型须用户确认自动适配；强制思考默认档守护尊重路由级 `reasoning` 默认值，并提供活动计数与最近模型报告。DSH peer 范围新增 `^0.2.1-alpha.1`，开发依赖同步到上游对应范围；这是依赖与源码基线对齐，**不是本 Fork 在真实 DSH 中的验证声明**。
 
-- 新增 `src/client/injection/provider-card.ts`：锚定官方动作行 `[class*="editorActions"]` 的父元素（该容器只在卡片被编辑时渲染，故「容器存在」即「卡片打开」），并做三级 route 解析（新建卡片 → 官方 route 标签 → 卡片标题）。
-- 改动 `src/client/index.ts`：不再注册该席位。
-- 改动 `src/client/injection/models-page.ts`：把卡片注入接入页面扫描与 fiber teardown。
-- 删除上游的 `src/client/injection/provider-card-slot.ts`（席位版实现）。
-- 测试：`tests/provider-card.spec.tsx`〔新增 11 条〕；`tests/client.spec.tsx` 改为断言该席位**未被注册**。
+### Fish 身份与 provider-card 兼容修复
 
-## 原作者的权利
+保留 Fish 的独立包名 / 插件 id / host 路由，以及既有 DOM 注入方案：**不注册 `settings.models.provider-card` 席位，请求头编辑器改挂官方卡片自身的编辑器容器。**
 
-- 插件全部功能与代码的著作权归**原作者**所有。
-- 本仓库**完整保留**上游 `LICENSE` 原文与版权声明，未做任何修改。
-- 上游原始 README 完整保留为 [`README.original.md`](README.original.md) 与 [`README_ZH.original.md`](README_ZH.original.md)，未做任何修改。
-- 本版新增代码同样以 **MIT** 发布；再分发时请保留本文件与上游署名。
+官方席位为 keyed slot：同一 `(key, priority)` 只接受一个条目，第二个注册会抛错。dsh-web 的 `@linxin666/dsh-client-ui-model-capabilities` 使用同一个 `llm-pi-ai` key 和默认优先级 `0`，两者争用可能让其中一方面板因注册失败而静默缺失。本版让出席位以避免这项注册冲突，不声称本次已在真实 DSH 重测共存效果。
 
-## 身份字段的改动（必须三处同步）
+- [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts)：锚定官方动作行 `[class*="editorActions"]` 的父元素，并解析 route。
+- [`src/client/index.ts`](src/client/index.ts)：不再注册该席位。
+- [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts)：接入页面扫描与 fiber teardown。
+- 上游席位实现 `src/client/injection/provider-card-slot.ts` 不恢复。
+- 既有回归防护见 [`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx) 与 [`tests/client.spec.tsx`](tests/client.spec.tsx)；列出测试不代表本次文档工作运行过测试。
 
-`package.json` 只改身份与元数据字段（`name` / `version` / `description` / `author` / `repository` / `homepage` / `bugs` / `keywords` / `files` / `publishConfig`）；`peerDependencies`、`devDependencies`、构建与测试脚本保持上游不变。
+### 八模型家族视觉移植
 
-**包名牵动三处，必须一致，否则插件加载失败（`loaded without registering`）：**
+Composer 滑块新增 DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax 八款角色主题，默认随滑块启用；不新增角色专用开关，尊重用户已关闭的整个滑块偏好。模型 `id` / `name` 优先识别，provider 兜底，未知为 DeepSeek。包括深浅色、辐射效果、拖动奔跑加速和 reduced-motion 静态呈现；仅改变展示，不声明额外模型能力。
+
+| 来源 | 链接 / 说明 |
+|------|-------------|
+| 原始滑块项目与作者 | [HanaAyane/dsh-reasoning-effort](https://github.com/HanaAyane/dsh-reasoning-effort)，作者 [HanaAyane](https://github.com/HanaAyane) |
+| 本次视觉素材与代码来源 | [PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9)，贡献者 [xihucuyudaichi](https://github.com/xihucuyudaichi) |
+| 固定来源提交 | [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea) |
+| 来源许可 | [该固定提交的 MIT LICENSE](https://github.com/HanaAyane/dsh-reasoning-effort/blob/651d24edc1ff45fbce5339700b40f32c5ff3ddea/LICENSE)；完整本地副本 [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE)，保留 `Copyright (c) 2026 HanaAyane` 与完整授权 / 免责条款 |
+| 运行素材 | `assets/` 下 `chibi-runner-strip.png`、`gpt-runner-strip.png`、`claude-runner-strip.png`、`gemini-runner-strip.png`、`kimi-runner-strip.png`、`glm-runner-strip.png`、`qwen-runner-strip.png`、`minimax-runner-strip.png`，经 esbuild `dataurl` 内嵌，无额外资源路由 |
+| 文档参考素材 | [`assets/readme/all-themes.jpg`](assets/readme/all-themes.jpg)，为素材 PR 参考预览，**不是本插件真实 DSH 运行截图** |
+
+感谢 HaoyueQin、HanaAyane 与 xihucuyudaichi。原项目、第三方素材及相应贡献的权利归各自权利人；本 Fork 不主张这些内容为 Fish 原创。新增代码同样以 MIT 提供，再分发须保留相关版权声明、完整许可与来源署名。
+
+## 身份与路由（维护时必须保留）
+
+以下三处必须一致，否则可能出现 `loaded without registering`：
 
 | 位置 | 值 |
 |------|-----|
@@ -47,6 +60,10 @@
 | `cordis.patch.yml` 插件行的 `name` 与 `id` | `dsh-better-reasoning-effort-fish` |
 | `src/constants.ts` 的 `PLUGIN_ID` | `dsh-better-reasoning-effort-fish` |
 
-同时把 host 侧的路由前缀从 `/dsh-better-reasoning-effort/*` 改为 `/dsh-better-reasoning-effort-fish/*`（`PROBE_PATH` / `AUTOFILL_CONFIG_PATH` / `HEADERS_CONFIG_PATH`），使本版与上游**可以并存而不撞车**；实际使用仍建议只装一个。
+host 路由 `PROBE_PATH` / `AUTOFILL_CONFIG_PATH` / `HEADERS_CONFIG_PATH` 继续使用 `/dsh-better-reasoning-effort-fish/*`，与上游区分。包元数据保留 Fish 身份；依赖、上游功能与构建资源规则随此次同步更新，不再声称 `package.json` 仅改身份字段。两版可避免身份与路由碰撞，但实际使用仍建议只启用一个，避免重复 UI 与写入。
 
-浏览器端的滑块开关偏好键刻意**保留上游的 `dsh-better-reasoning-effort.slider.enabled`**，这样从上游切到本版时偏好延续；若两者并存，该开关会同步（两者本就是同一个开关的语义）。
+浏览器滑块偏好键刻意保留上游的 `dsh-better-reasoning-effort.slider.enabled`，切换版本时沿用用户选择；若两者并存，该开关偏好会共享。八主题不会重置已关闭的偏好。
+
+## 当前发布与验证状态
+
+当前分支源码新功能**尚未发布**：版本保持 `0.5.8`，此次仅准备 PR，不发布 npm、不打 tag。现有 npm `0.5.8` 不含此次同步与主题功能；体验方式以本地 build + link 或包含改动的分支源码为准，见中英文 README。素材预览和上游的验证记录均不能作为本分支在真实 DSH 中已验证的证据。
