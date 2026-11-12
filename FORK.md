@@ -1,55 +1,88 @@
 # 本 fork 的维护说明
 
-本仓库是 **dsh-better-reasoning-effort 的上游客制化版（fork）**：基线为上游 `master` = **v0.5.2**（commit `52b584c`）。
+本仓库是 **dsh-better-reasoning-effort 的个人客制化版（fork）**，不是原创或官方发行版。当前基线为 [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) `master` **v0.5.4**，固定 commit **`2d68b65cc641cd85e95384c859a2bc3de23d9e08`**；前一基线为 v0.5.2 `52b584c`。
 
-改动范围、署名、身份字段（包名 / 插件行 / `PLUGIN_ID` 三处同步）的完整说明见 **[NOTICE.md](NOTICE.md)**；本文件只留维护者需要的东西。
+改动范围、素材来源、MIT 许可及身份字段约束见 **[NOTICE.md](NOTICE.md)**；完整用户说明见 [中文 README](README.md) / [English README](README.en.md)。
 
-## 跟随上游
+## 跟随上游：按基线 diff 移植
 
-```bash
-git remote add upstream https://github.com/HaoyueQin/dsh-better-reasoning-effort.git   # 首次
-git fetch upstream && git merge upstream/master
-```
+本仓库是**没有共同历史的独立仓库**，不能照搬 `git merge upstream/master`；也不应通过 `--allow-unrelated-histories` 将上游全树合并进来。应取得固定提交，审阅旧基线到新基线的 diff，再逐路径移植，同时保留本 Fork 差异。不要把「上游当前 master」的后续变化混入本次固定同步。
 
-合并时留意三处本版已改、上游仍在维护的地方：
-
-| 路径 | 本版的差异 |
-|------|-----------|
-| `src/client/injection/provider-card-slot.ts` | **已删除** —— 本版不再占用官方 `settings.models.provider-card` 席位 |
-| `src/client/injection/provider-card.ts` | **新增** —— 请求头编辑器改挂官方卡片的编辑器容器 |
-| `src/client/index.ts` / `injection/models-page.ts` | 装配段与扫描接入相应改动 |
-| `src/constants.ts` | 插件 id 与三个 host 路由前缀都已带 `-fish`（与上游并存不撞车） |
-
-身份字段（`package.json` 的 `name`、`cordis.patch.yml` 的行名、`src/constants.ts` 的 `PLUGIN_ID`）以本版为准；上游若改动它们，合并时取本版值。
-
-## 发布
+以下仅作维护命令示例，`upstream` remote 已存在则跳过添加；不要求切分支或提交：
 
 ```bash
-npm run build                                  # 生成 lib/（host + client + 类型）
-npm publish --access public --ignore-scripts   # 本机首发；--ignore-scripts 跳过 prepare 的重复构建
-git tag v0.5.3 && git push origin v0.5.3       # 之后交给 .github/workflows/publish.yml
+git remote add upstream https://github.com/HaoyueQin/dsh-better-reasoning-effort.git
+git fetch upstream
+
+# 本次同步已采用的变更范围
+git diff --stat 52b584c 2d68b65cc641cd85e95384c859a2bc3de23d9e08
+git diff 52b584c 2d68b65cc641cd85e95384c859a2bc3de23d9e08 -- src tests scripts package.json
 ```
 
-CI 走 npm 的 **Trusted Publishing（OIDC）**，仓库里不存 token；但**首次走 CI 前**需要在本包的 npm 页面配置一次发布者（Settings → Trusted Publisher → GitHub Actions，填 `Fish-under-sea/dsh-better-reasoning-effort-fish` 与 workflow 名 `publish.yml`）。
+不要把上述 diff 整体覆盖应用到工作树：逐文件核对交叠改动，将上游行为移入本地实现。下一次同步应从本次 **`2d68b65cc641cd85e95384c859a2bc3de23d9e08`** 到新的固定提交计算 diff，而不是重新从 `52b584c` 起算。
+
+### 必须保留的 Fork 差异
+
+| 路径 / 范围 | 本版约束 |
+|-------------|----------|
+| `src/client/injection/provider-card-slot.ts` | 保持不使用该席位实现，不恢复对 `settings.models.provider-card` 的注册 |
+| `src/client/injection/provider-card.ts` | 请求头编辑器继续挂官方卡片编辑器容器，保留 route 解析与 teardown |
+| `src/client/index.ts` / `injection/models-page.ts` | 保留不占席位的装配与扫描接入 |
+| `src/constants.ts` | Fish 插件 id；`PROBE_PATH` / `AUTOFILL_CONFIG_PATH` / `HEADERS_CONFIG_PATH` 使用 `/dsh-better-reasoning-effort-fish/*` |
+| `package.json` / `cordis.patch.yml` / `src/constants.ts` | 包名、插件行 `name` / `id`、`PLUGIN_ID` 一致为 `dsh-better-reasoning-effort-fish`；元数据保留 Fish 身份 |
+| `src/client/ComposerSlider.tsx` / `model-theme.ts` / `radiation.ts` / `runner-styles.ts` | 保留八角色、深浅色、辐射效果、拖动加速与 reduced-motion 静态路径；模型 id / name 优先、provider 兜底、未知 DeepSeek |
+| Composer 滑块偏好 | 不加角色开关、不强制开启；保留整个滑块的 `dsh-better-reasoning-effort.slider.enabled` 偏好 |
+| `scripts/build-client.mjs` / `src/client/assets.d.ts` / `assets/` | 八张运行 PNG 经 esbuild `dataurl` 内嵌，不引入静态资源路由；保留完整第三方 MIT 许可 |
+| 六份根目录说明文档 | 用户 README 保持 Fish 说明；两份 `original` 备份保持固定上游提交原文与身份 |
+
+本次同步还包括官方 `modelOverrides` 目录安全写入、未知模型不自动填充，以及默认档守护与活动报告。DSH peer 范围新增 `^0.2.1-alpha.1`、DSH devDependencies 对齐上游 `^0.2.1-alpha.1`；合入时保留包版本 `0.5.8`，不要误改为上游包名或版本 `0.5.4`。依赖声明对齐不等于本 Fork 已在真实 DSH 验证。
+
+### 原始 README 备份
+
+每次更新基线时，从**同一固定提交**原样更新两份署名备份；不将其改写成 Fish 身份，不向原文插入 Fork 说明：
+
+```bash
+git show 2d68b65:README.md > README.original.md
+git show 2d68b65:README.zh.md > README_ZH.original.md
+```
+
+原文内相对链接也保留原样；它们是来源快照而不是本 Fork 的用户入口。
+
+## 视觉来源与资源
+
+视觉与相关代码来自 [HanaAyane/dsh-reasoning-effort PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9)，贡献者 [xihucuyudaichi](https://github.com/xihucuyudaichi)，固定 commit [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea)，不是浮动跟随该仓库的 master。
+
+- 八款主题：DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax。
+- `assets/readme/all-themes.jpg` 是素材 PR 的参考预览，**不是本插件真实 DSH 运行截图**。
+- `assets/third-party/dsh-reasoning-effort.LICENSE` 完整保留来源 MIT 版权、授权及免责条款；不得只保留链接或短句替代完整许可。
+- `assets/` 的八张 `*-runner-strip.png` 运行素材经 `dataurl` 内嵌进客户端 bundle；不要把参考预览当成运行资源，也不要另开资源路由。
+
+## 本次交付：只 PR，不发布
+
+**版本保持 `0.5.8`，不发布 npm、不创建 tag。** 现有 npm `0.5.8` 不含此次新功能；当前 README 必须明确区分本分支源码与旧发布版，安装优先本地 build + link，或在分支推送后明确指定分支 / commit。尚未推送的本地修改不能通过 GitHub 安装取得。
+
+本次不执行 `npm publish`、打 tag 或发布 workflow，也不把上游测试门禁、素材图或源码检查描述成本分支真实 DSH 运行验证。实际验证与测试由主任务统一完成；此文档更新本身不运行测试。
 
 ## 本机开发备注（DSH 文件沙箱）
 
-本机 DSH 运行在文件沙箱下，**禁止子进程通过管道捕获输出**（`EPERM`），因此：
+以下为既有开发环境的排障参考，不是本次已执行或要求自动执行的步骤。遇到权限限制应遵循当前环境审批，不绕过沙箱。
 
-- `vitest` 启动即失败 —— vite 在 Windows 上无条件执行一次 `exec("net use")` 探测网络驱动器映射，该调用的同步 `EPERM` 落在它自己的 `try` 块之外。先跑一次幂等补丁脚本（只改本地 `node_modules`，重装依赖后需重跑）：
+- 在曾出现 `EPERM` 的环境中，vite 在 Windows 探测网络驱动器的 `exec("net use")` 可能被阻止。仓库提供的幂等补丁只修改本地 `node_modules`，重装依赖后需重跑：
 
   ```bash
   node scripts/sandbox-vite-patch.mjs
   ```
 
-- vitest 默认的 fork 池同样被拦（IPC 走管道），测试请用线程池：
+- 若默认 fork 池的 IPC 管道被限制，可改用线程池：
 
   ```bash
   node node_modules/vitest/vitest.mjs run --pool=threads
   ```
 
-- 构建（esbuild 需启动自身二进制服务并通过管道通信）需在放宽沙箱下执行：
+- esbuild 需要启动自身二进制服务并通过管道通信；如被拦，应先通过环境批准的方式取得执行权限。常规构建入口：
 
   ```bash
-  node scripts/build-host.mjs && node scripts/build-client.mjs && npx tsc -p tsconfig.build.json
+  npm run build
   ```
+
+构建中的 `build:client` 包含样式检查；不要为了绕开环境问题跳过项目已有检查。`lib/` 为 gitignore 中的构建产物，源码 clone 不自带。

@@ -20,6 +20,8 @@ const FOOTER = `
 await build({
   entryPoints: ['src/client/index.ts'],
   bundle: true,
+  // 内嵌素材：DSH 模块加载器不需要额外的静态资源路由。
+  loader: { '.png': 'dataurl' },
   format: 'cjs',
   platform: 'browser',
   jsx: 'automatic',

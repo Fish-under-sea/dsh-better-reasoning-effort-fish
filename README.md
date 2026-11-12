@@ -16,6 +16,8 @@
 
 </div>
 
+> **当前分支源码功能尚未发布。** 本次仅准备 PR，包版本仍为 `0.5.8`，不发布 npm、不打 tag；现有 npm `0.5.8` **不含此次上游同步与八主题功能**。体验本次改动请使用[本地构建并链接或指定分支源码](#安装)，不要把 npm 徽章理解为新功能已上线。
+
 ## 原作者与授权（请先读）
 
 | 项目 | 内容 |
@@ -25,8 +27,8 @@
 | 原仓库 | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
 | 上游 npm 包名 | `dsh-better-reasoning-effort`（**归原作者，本版不能沿用**） |
 | 本版 npm 包名 | **`dsh-better-reasoning-effort-fish`** |
-| 许可证 | **MIT**，版权归原作者（本仓库 [`LICENSE`](LICENSE) **未做任何修改**） |
-| 本版基线 | 上游 `master` = **v0.5.2**（commit `52b584c`） |
+| 许可证 | **MIT**；上游 [`LICENSE`](LICENSE) 未修改，视觉来源的独立 MIT 声明见 [`NOTICE.md`](NOTICE.md) |
+| 本版基线 | [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) `master` = **v0.5.4**（commit [`2d68b65cc641cd85e95384c859a2bc3de23d9e08`](https://github.com/HaoyueQin/dsh-better-reasoning-effort/commit/2d68b65cc641cd85e95384c859a2bc3de23d9e08)；由 v0.5.2 `52b584c` 同步） |
 | 本版性质 | **个人客制化版（fork）**，非原创、非官方；上游 README 完整保留为 [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
 
 > 署名与改动范围的完整说明见 [`NOTICE.md`](NOTICE.md)。再分发时请保留原作者署名。
@@ -41,16 +43,31 @@
 |------|------|
 | **官方页内注入** | 官方模型行展开区出现「选项」编辑块（思考强度、输入模态、端点兼容），随卡片自身的**保存**统一提交，**取消**则一起丢弃 |
 | **自动适配** | 一键填入推荐档位、线上取值与模态：内置知识库（15 家厂商 65 个条目）+ 线协议推断 + 同源 `/models` 探测，每条建议标注置信度 |
-| **自动填充** | 启动时补齐未声明模型的推荐声明，会话中新增的也会补写（`autofill: false` / `modalityAutofill: false` 可关） |
+| **自动填充** | 启动及会话中新增模型时，仅自动补齐命中精选官方知识库的模型；未知模型保持不变，须用户确认「自动适配」建议（`autofill: false` / `modalityAutofill: false` 可关）；显式声明、`false` 与刻意撤销的标记不覆盖 |
+| **目录安全写入** | 使用 DSH 官方 `modelOverrides` 的路由保留已安装目录，只写被编辑模型的 override |
 | **三种意图** | 全不勾 = 取消声明（回到继承）；只勾 off = 禁用推理；勾选档位 = 写入声明 |
-| **Composer 思考强度滑块** | 官方模型菜单弹出体换成上游风格的档位滑块（拖动 / 键盘，乐观提交、被拒回滚），右下角触发钮保持原样 |
+| **Composer 思考强度滑块** | 官方模型菜单弹出体换成带八主题角色的档位滑块（拖动 / 键盘，乐观提交、被拒回滚），保留模型条目打开官方模型列表，右下角触发钮保持原样；切换模型沿用会话档位记忆，每模型默认档跨会话优先 |
 | **每模型默认思考强度** | 模型行上的「默认思考强度」选择器，写进设置文档，新会话打开该模型即用它 |
 | **请求头与 User-Agent** | 提供商卡片内编辑官方 `headers` 字段（掩码显示、路径合并），并按 origin 精确接管 fetch 层的 `user-agent`；同源 `/models` 探测一并覆盖 |
 | **防御式注入** | 一切锚定官方页 DOM；官方升级改变结构时注入自动暂停，官方页不受影响 |
 
-**本版（本 Fork）相对上游的改动：让出官方模型能力面板的 `settings.models.provider-card` 席位，避免与 dsh-web 的模型能力插件冲突。** 详见[兼容与边界](#兼容与边界)。
+**本 Fork 保留独立包名、插件 id 与 host 路由，以及不占用 `settings.models.provider-card` 的 DOM 注入兼容修复；在上游 v0.5.4 功能之上，新增默认启用的八模型家族奔跑角色主题。** 详见[角色主题](#角色主题)与[兼容与边界](#兼容与边界)。
+
+## 角色主题
+
+- **八款主题**：DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax。模型 `id` / `name` 优先识别，无法识别时回退 provider，仍未知则使用 DeepSeek；聚合供应商不会盖过已识别的模型家族。
+- **无需额外开关**：角色在 Composer 滑块中默认启用，沿用整个滑块原有开关与 `dsh-better-reasoning-effort.slider.enabled` 偏好键；已关闭滑块的用户仍保持关闭，不强制重开，也没有新增角色专用设置。
+- **深浅色与动效**：配套深色 / 浅色轨道、角色逐帧奔跑与辐射效果；拖动时奔跑加速、效果增强。`prefers-reduced-motion: reduce` 下使用静态呈现，仍可选择档位。
+- **资源内嵌**：八张运行用 PNG 由 esbuild 的 `dataurl` loader 内嵌进 `lib/client.js`，无需额外资源路由；主题仅改变展示，不增加模型能力或改变思考强度协议。
+- **来源**：[HanaAyane/dsh-reasoning-effort PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9)，贡献者 [xihucuyudaichi](https://github.com/xihucuyudaichi)，固定 commit [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea)。完整 MIT 许可保留在 [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE)，完整署名见 [`NOTICE.md`](NOTICE.md)。
 
 ## 效果
+
+<p align="center">
+  <img src="assets/readme/all-themes.jpg" alt="来自素材 PR #9 的八主题参考预览，并非本插件真实运行截图" width="900">
+</p>
+
+> **这是素材 PR 的参考预览，不是本插件在真实 DSH 中运行的截图。** 下方保留既有编辑器示意；本次改动尚未在真实 DSH 中验证。
 
 <p align="center">
   <picture>
@@ -65,39 +82,50 @@
 
 ## 安装
 
-需要 DeepSeek Harness **`0.1.5-alpha.1` 或更高**（按 peerDependencies 范围），当前对照 `0.2.0-rc.2` 编译与门禁。Node 要求 `^22.19.0 || >=24`。
+兼容声明以 `package.json` 的联合 peer 范围为准，覆盖 `0.1.5-alpha.1` 起的列明版本线，并新增 `^0.2.1-alpha.1`（不是对所有未来版本的无限保证）；DSH 开发依赖同步为 `^0.2.1-alpha.1`，与上游 v0.5.4 对齐。Node 要求 `^22.19.0 || >=24`。**这表示依赖范围对齐，不表示本分支已经在真实 DSH 验证。**
 
-从 npm 安装（推荐）：
+### 本次源码功能：优先本地构建并链接
 
-```sh
-# 桌面版
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish
-
-# Web 版
-dsh plugin --profile web add dsh-better-reasoning-effort-fish
-```
-
-> DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时：版本发布后一天内的安装会解析到「足够旧的最新版」。写明版本号可立刻安装，例如 `dsh-better-reasoning-effort-fish@0.5.8`。
-
-release 页面同时附带打包好的 tarball，这条路线跳过 registry 与发布冷静期。tarball 是成品，pnpm 不执行任何脚本，也不需要构建授权。URL 指向单一版本，升级时替换它即可：
-
-```sh
-dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
-```
-
-从 GitHub 源码安装，用于开发与审查而非日常安装。pnpm 要跑 `prepare` 钩子构建 `lib/`，且只在 `allowBuilds` 存在对应条目后才放行。安装器会打印确切的键，该键包含解析到的 commit：把它加进 profile 的 `pnpm-workspace.yaml` 后重新执行 add。新 commit 会改变这个键，因此每次发版都要重新授权：
-
-```sh
-dsh plugin --profile web add github:Fish-under-sea/dsh-better-reasoning-effort-fish
-```
-
-链接本地检出（改源码用）：
+检出包含此次改动的分支后，在仓库根目录执行（按实际目录修改链接路径，选择你使用的 profile）：
 
 ```sh
 npm install && npm run build
 dsh plugin --profile desktop add link:/path/to/dsh-better-reasoning-effort-fish
+# 或 Web profile
 dsh plugin --profile web add link:/path/to/dsh-better-reasoning-effort-fish
+```
+
+源码改动不会自动进入旧 npm 包；本地重新构建后，重启 DSH 并强制刷新浏览器。
+
+### 指定本次功能分支源码
+
+未指定分支的 GitHub 安装不保证包含本次改动。可指定本次 PR 的 `feat/fish-runner-themes` 分支，或把分支名替换为该 PR 的固定 commit：
+
+```sh
+dsh plugin --profile web add 'github:Fish-under-sea/dsh-better-reasoning-effort-fish#feat/fish-runner-themes'
+```
+
+pnpm 会通过 `prepare` 构建 `lib/`，需按安装器打印的确切键，在 profile 的 `pnpm-workspace.yaml` 中允许对应 `allowBuilds` 条目后重新 add。该键包含解析到的 commit，新 commit 需要重新授权。本地未推送的修改只能走本地 build + link。
+
+### 旧发布版：npm / release tarball
+
+以下保留既有发布版用法，**只能取得旧发布版，不含此次新功能**：
+
+```sh
+# 桌面版（旧 npm 0.5.8）
+dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.8
+
+# Web 版（旧 npm 0.5.8）
+dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.8
+```
+
+DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时，未指定版本时可能解析到足够旧的版本；指定版本只能绕过该等待，**不能让尚未发布的源码功能出现在 npm 中**。
+
+若对应旧 release 提供打包好的 tarball，可用以下形式跳过 registry 与发布等待；它是旧版本成品，不是此次 PR 的构建产物（`<version>` 需替换为实际存在的 release）：
+
+```sh
+dsh plugin --profile web add \
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v<version>/dsh-better-reasoning-effort-fish-<version>.tgz
 ```
 
 安装后**重启 DSH** 并强制刷新浏览器。
@@ -122,11 +150,12 @@ host 侧接受以下可选配置项（写入 `settings.yaml` 的插件 `config` 
 
 | 配置键 | 默认值 | 可选值 | 说明 |
 |--------|--------|--------|------|
-| `autofill` | `true` | `true` / `false` | 启动时自动填充未声明模型的推荐声明 |
+| `autofill` | `true` | `true` / `false` | 启动与新增模型时，仅自动补齐命中精选官方知识库且未声明的模型 |
 | `modalityAutofill` | `true` | `true` / `false` | 上述填充是否连带输入模态声明 |
 | `probeTimeoutMs` | `15000` | 正整数 | `/models` 探测请求超时（毫秒） |
 | `bootRetryDelaysMs` | `[1000, 2000, 4000, 8000, 16000, 30000]` | 正整数数组 | 启动时自动填充失败后的重试延迟（毫秒） |
-| `defaultGuard` | `true` | `true` / `false` | 强制思考梯子上的无档位调用落厂商默认档，而非发送 `thinking: disabled` |
+| `defaultGuard` | `true` | `true` / `false` | 强制思考梯子上的无档位调用落厂商默认档，而非发送 `thinking: disabled`；尊重路由级 `reasoning` 默认值 |
+| `uaOverride` | `true` | `true` / `false` | 按 origin 接管配置中的 `user-agent`；设 `false` 可让其他改写器接管 |
 
 示例：
 
@@ -140,18 +169,19 @@ host 侧接受以下可选配置项（写入 `settings.yaml` 的插件 `config` 
         probeTimeoutMs: 15000
         bootRetryDelaysMs: [1000, 2000, 4000, 8000, 16000, 30000]
         defaultGuard: true
+        uaOverride: true
 ```
 
 ## 兼容与边界
 
-**本 Fork 只做一处修复**：请求头编辑器不再占用官方 `settings.models.provider-card` 席位，改挂官方卡片自身的编辑器容器。
+**本 Fork 的既有兼容修复继续保留**：请求头编辑器不再占用官方 `settings.models.provider-card` 席位，改挂官方卡片自身的编辑器容器。它与上游 v0.5.4 同步、八主题移植共同构成本版的改动，不再仅有一处修复。
 
 原因是官方该席位为 **keyed slot** —— 注册表对同一 `(key, priority)` 只接受一个条目，第二个注册直接抛错。dsh-web 全家桶的 `@linxin666/dsh-client-ui-model-capabilities`（模型能力面板）注册的正是同一个 `llm-pi-ai` key、同一个默认优先级 `0`。两者都占时只有一个能注册成功，另一个的整块界面**静默消失**。因 dsh-web 走异步壳行加载，实际被挤掉的是**模型能力面板**（每模型思考强度 / 图片输入）。
 
 | | 修复前 | 修复后 |
 |---|---|---|
 | `settings.models.provider-card` 席位 | 本插件抢占 | **完整让给 `model-capabilities`** |
-| 模型能力面板 | 静默消失 | 正常显示 |
+| 模型能力面板 | 可能因注册冲突静默消失 | 不再与本插件争用该席位（本次未在真实 DSH 重测） |
 | 请求头编辑器 | 在卡片内（占席位） | **仍在卡片内** —— 改挂卡片自己的编辑器容器 |
 
 改动落在 [`src/client/injection/provider-card.ts`](src/client/injection/provider-card.ts)（新增）、[`src/client/index.ts`](src/client/index.ts)（不再注册席位）与 [`src/client/injection/models-page.ts`](src/client/injection/models-page.ts)（接入页面扫描）。回归防护见 [`tests/client.spec.tsx`](tests/client.spec.tsx) 与 [`tests/provider-card.spec.tsx`](tests/provider-card.spec.tsx)。
@@ -173,7 +203,10 @@ dsh plugin --profile web remove dsh-reasoning-effort
 - 模态词汇跟随 pi-ai 核心（当前 `text` / `image`）；更宽的网关支持（PDF / 音频 / 视频）在核心词汇扩充前声明不了，这是设计使然。
 - 命名启发式的模态建议（视觉风味 id）刻意标注低置信度，使用前请核对。
 - 自建中转：对没有官方 host 认领的路由，自动填充会钉 `supportsDeveloperRole: false`；显式值永不被覆盖。
-- 强制思考模型（无 `off` 的梯子，如 GLM-5.3）：无档位调用自动落厂商默认档而不是发 `thinking: disabled` —— 设 `defaultGuard: false` 可恢复原行为。
+- 强制思考模型（无 `off` 的梯子，如 GLM-5.3）：无档位调用自动落厂商默认档而不是发 `thinking: disabled` —— 设 `defaultGuard: false` 可恢复原行为。路由若已声明 `reasoning` 默认值，官方适配器按 `options.reasoningEffort ?? profile.reasoning` 处理，守护让位，不覆盖该默认值。
+- 默认档守护在请求头区域报告改写次数与最近模型；同一报告可从本 Fork 的 `/dsh-better-reasoning-effort-fish/headers-config` 获取，便于区分已安装但空闲与实际工作。
+- 未知模型不会自动填充；「自动适配」仍可展示低置信度建议，需用户确认。八角色的家族识别仅为命名启发式，并非能力探测，未知主题回退 DeepSeek 不等于模型属于 DeepSeek。
+- 主题动效依赖浏览器 Canvas / 动画能力；reduced-motion 使用静态角色和效果。参考预览不代表各 DSH 版本中的最终布局，本次尚未在真实 DSH 验证。
 - **`headers` 中的凭据在磁盘上不脱敏**：只读视图会掩码，但设置文档仍明文保存 —— 请当 API key 对待。
 - **请求头区域依赖官方卡片的编辑器容器**：官方若改变该结构，请求头区域会停止出现 —— 绝不弄坏官方页面。这也是本版相对上游的取舍：不再使用官方席位，换来与 dsh-web 插件共存。
 - **同一时间只应有一个 `user-agent` 改写器**：同类 header 插件落在同一层，后写者赢；插件会检测并提示已知同类，但不覆盖未知情况。
@@ -182,6 +215,9 @@ dsh plugin --profile web remove dsh-reasoning-effort
 更多兼容性细节见 [`docs/compatibility-notes.md`](docs/compatibility-notes.md)，支持的模型列表见 [`docs/supported-models.md`](docs/supported-models.md)。
 
 ## 开发与测试
+
+本次 PR 的本地检查：`typecheck` 与完整 `build` 已通过；`npm test` 因缺少 Windows 的 `@rolldown/binding-win32-x64-msvc` 原生绑定而未能启动，不能视为测试通过。按维护者选择，后续仅做静态核对，新增测试未运行，浏览器与真实 DSH 验证未完成；最终以 PR CI 的实际结果为准。
+
 
 ```sh
 npm run typecheck   # tsc 严格检查
@@ -199,4 +235,4 @@ npm run build       # lib/*.js + lib/client.js
 
 ## 许可
 
-[MIT](LICENSE)，著作权归原作者 **HaoyueQin**；本版新增代码同样以 MIT 发布，再分发请保留 [`LICENSE`](LICENSE) 与 [`NOTICE.md`](NOTICE.md)。
+[MIT](LICENSE)，上游版权声明归原作者 **HaoyueQin**；角色素材与移植代码另保留来源项目 **HanaAyane** 的 MIT 声明，并署名贡献者 **xihucuyudaichi**，不作为 Fish 原创。本版新增代码同样以 MIT 提供，再分发请保留 [`LICENSE`](LICENSE)、[`NOTICE.md`](NOTICE.md) 及 [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE)。

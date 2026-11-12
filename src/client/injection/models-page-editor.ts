@@ -29,7 +29,7 @@
 
 import { AUTOFILL_MARKER, INPUT_UNSET_MARKER, PLUGIN_ID, UNSET_MARKER } from '../../constants.js'
 import { suggestEfforts, type CompatSuggestion, type InputModalities, type ReasoningEfforts } from '../../knowledge.js'
-import { modelsOf, routeFactsOf, isRecord } from '../../shared.js'
+import { modelsOf, routeFactsOf, isRecord, usesModelOverrides } from '../../shared.js'
 import { sameEfforts } from '../effort.js'
 import { compatOf, createEditorApi, defaultEffortOf, effortsOf, inputOf, nameOf, providersOf, writeModelRows, type RowIntent } from '../ops.js'
 import type { EffortEditorApi, EffortWriteIntent, HeldWrite, RemoteApi, SettingsJoin } from '../types.js'
@@ -175,6 +175,15 @@ export interface EditorMountProps {
    * DOM, never a kernel version.
    */
   officialInputTypes?: boolean
+  /**
+   * Whether the official Models page owns reasoning levels for this row:
+   * 0.2.1-alpha.4 renders its own Reasoning levels editor inside the
+   * disclosure. When true, the editor hides its ladder controls and never
+   * writes `reasoningEfforts`; the default pick, endpoint compatibility and
+   * Auto-adapt's non-ladder parts stay — again a CAPABILITY sniffed from the
+   * row DOM, never a kernel version.
+   */
+  officialReasoning?: boolean
   /**
    * Hand a suggested modality set to the OFFICIAL Input-types control when it
    * owns them: the pending write only reaches the settings document on Save,
@@ -819,11 +828,15 @@ async function flushRoute(
   // the batch then reports back per model as its results land.
   const intents: RowIntent[] = []
   for (const [modelId, declaration] of [...models]) {
-    const current = modelsOf(providers, route).find(model => model['id'] === modelId)
-    // The row is not saved yet (mid-edit card, or the user renamed it):
-    // keep the staging instead of dropping it -- it lands when a row with
-    // this id first appears; the scan's ghost pass withdraws staging whose
-    // row is provably gone.
+    const stored = modelsOf(providers, route).find(model => model['id'] === modelId)
+    // A row the document does not hold is not automatically an unsaved row: on
+    // a catalog route the installed catalog serves it, so the staging has to
+    // land as its FIRST override, against an empty baseline. Only an explicit
+    // `models` list owns its rows -- there a missing one really means "not
+    // saved yet" (a mid-edit card, or a renamed id), so the staging keeps
+    // waiting for it, and the scan's ghost pass withdraws whatever is provably
+    // gone.
+    const current = stored ?? (usesModelOverrides(providers, route) ? { id: modelId } : undefined)
     if (current === undefined) continue
     // A concurrent scan may have withdrawn this staging while our read was
     // in flight (the two-scan ghost pass): writing it anyway would resurrect
@@ -1042,6 +1055,17 @@ function officialInputTypesOf(container: HTMLElement): boolean {
 }
 
 /**
+ * Whether the official page ships its own reasoning-levels editor inside this
+ * row's disclosure (0.2.1-alpha.4's `ModelReasoningEfforts`). The same
+ * capability rule as {@link officialInputTypesOf}: a DOM class-name stem
+ * sniffed per row, so the plugin's ladder stands down exactly where the
+ * official control already owns the declaration.
+ */
+function officialReasoningOf(container: HTMLElement): boolean {
+  return container.querySelector('[class*="modelReasoning"]') !== null
+}
+
+/**
  * Drive the official per-row input-types control to a suggested declaration.
  *
  * Clicking an official checkbox is the path a user takes: its own onChange
@@ -1097,6 +1121,9 @@ function sameProps(a: EditorMountProps, b: EditorMountProps): boolean {
     // The official capability can appear/disappear across an HMR or host
     // update; the modality section must follow it.
     && a.officialInputTypes === b.officialInputTypes
+    // Same for the official reasoning-levels block: the ladder section must
+    // stand down (or come back) with it.
+    && a.officialReasoning === b.officialReasoning
     && sameEfforts(a.efforts, b.efforts)
     && sameInput(a.input, b.input)
     && sameCompat(a.compat, b.compat)
@@ -1476,6 +1503,7 @@ export function reconcile(root: HTMLElement, deps: InjectorDeps, state: ScanStat
         index,
         staged,
         officialInputTypes: officialInputTypesOf(target.container),
+        officialReasoning: officialReasoningOf(target.container),
         syncOfficialInput: (input: readonly string[]) => { syncOfficialInputTypes(target.container, input) },
         api: createEditorApi(
           deps.api,
@@ -1493,7 +1521,16 @@ export function reconcile(root: HTMLElement, deps: InjectorDeps, state: ScanStat
           // closure lags that by up to one debounce window. The saved-model arm
           // still reads the snapshot: the settings document only changes when a
           // describe does.
-          () => (routeOfCard(target.card, providers, labels)?.staged ?? routeStaged) || !savedModelIds.has(target.modelId),
+          // The saving arm covers TWO shapes: a row the document does not hold
+          // yet because the route itself is new (the create card), and a row the
+          // document does not hold because it is a catalog row -- served by the
+          // installed catalog, which this plugin's write reaches through the
+          // override dict. Only an explicit `models` list has to wait for the id
+          // to be stored: staging such a row forever is what made every catalog
+          // model uneditable, since no save can ever add an entry the official
+          // page does not own.
+          () => (routeOfCard(target.card, providers, labels)?.staged ?? routeStaged)
+            || (!savedModelIds.has(target.modelId) && !usesModelOverrides(providers, route)),
         ),
         readOnly: join.writable !== true,
         t: deps.t,
