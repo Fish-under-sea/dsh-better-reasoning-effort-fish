@@ -61,10 +61,11 @@ git show 2d68b65:README.zh.md > README_ZH.original.md
 
 `0.5.10` 是包名改为 `@fish-under-sea/dsh-better-reasoning-effort-fish` 后的首个发布版本，内容为上游 v0.5.4 同步与八主题功能。
 
-- **npm**：`@fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10`。未加 scope 的旧包 `0.5.9` 已由作者删除；scope 包按首次发布流程在本机执行 `npm publish --access public --ignore-scripts`。
+- **npm**：`@fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10`。未加 scope 的旧包 `0.5.9` 已由作者删除；scoped 包首次发布使用 `npm stage publish` 提交暂存队列，由维护者在 npm 网页完成 2FA 审批后上线。
 - **GitHub Release**：`v0.5.10`，资产为同一 commit 构建的 `fish-under-sea-dsh-better-reasoning-effort-fish-0.5.10.tgz`，可直接用于 `dsh plugin add <tarball URL>`。`npm pack` 对 scoped 包会去掉 `@` 并把 `/` 换成 `-`，`release.yml` 的附件 glob 已同步。
 - **历史版本**：`v0.5.9` 与 `v0.5.8` 的 tag 与 release 保留为历史，不移动、不覆盖；其中 `v0.5.9` 是未加 scope 的版本，npm 侧已删除，不再使用。
 - **后续 tag 发布**：`publish.yml` 使用 npm Trusted Publishing。scoped 包需要先在 npm 网页重新配置 GitHub Actions 发布者（仓库名 + `publish.yml`）；未配置前，新的 tag 发布会失败，应继续在本机完成首次发布。`publish.yml` 对已经存在于 registry 的版本会跳过重复发布，避免本机发布后 tag 推送把 CI 标红。
+- **已知展示问题**：npm 页面 README 取的是根目录 `README.original.md`（npm 的 `{README,README.*}` 选取顺序），因此页面安装示例仍可能显示上游包名；`npm install` 内容不受影响。修正需把两份 `original` 备份移出根目录（不再匹配 `README.*`）后发布新版本。
 
 发布不改变验证边界：本地 `typecheck`、`npm test`（24 个测试文件、518 项）与 `build` 已通过，浏览器交互与真实 DSH 运行仍未验证。
 
