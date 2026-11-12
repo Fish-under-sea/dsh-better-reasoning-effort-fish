@@ -278,9 +278,6 @@ ${RUNNER_STYLES}
 .bre-model-row-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .bre-model-row-effort {
   color: var(--bre-accent, var(--dsw-static-deepseek-500, #4d70ff));
-  /* Blend with the row's own text color so the accent stays readable on both
-     light and dark menu shells without reintroducing a dark-mode gate. */
-  color: color-mix(in srgb, var(--bre-accent, #4d70ff) 72%, currentColor);
   font-size: 12px;
 }
 /* Per-model accent for the effort label ("High") only; scoped to this slider body. */
