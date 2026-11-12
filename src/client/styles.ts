@@ -276,13 +276,28 @@ ${RUNNER_STYLES}
 }
 .bre-model-row:hover { background: var(--dsw-alias-fill-tertiary, rgba(120,125,140,.09)); }
 .bre-model-row-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
-.bre-model-row-effort { color: var(--dsw-static-deepseek-500, #4d70ff); font-size: 12px; }
+.bre-model-row-effort {
+  color: var(--bre-accent, var(--dsw-static-deepseek-500, #4d70ff));
+  /* Blend with the row's own text color so the accent stays readable on both
+     light and dark menu shells without reintroducing a dark-mode gate. */
+  color: color-mix(in srgb, var(--bre-accent, #4d70ff) 72%, currentColor);
+  font-size: 12px;
+}
+/* Per-model accent for the effort label ("High") only; scoped to this slider body. */
+.bre-slider-body[data-bre-theme="deepseek"] { --bre-accent: #4d8df6; }
+.bre-slider-body[data-bre-theme="openai"] { --bre-accent: #b06bff; }
+.bre-slider-body[data-bre-theme="claude"] { --bre-accent: #ff8a4c; }
+.bre-slider-body[data-bre-theme="gemini"] { --bre-accent: #6aa7ff; }
+.bre-slider-body[data-bre-theme="kimi"] { --bre-accent: #f0c04a; }
+.bre-slider-body[data-bre-theme="glm"] { --bre-accent: #38c7f2; }
+.bre-slider-body[data-bre-theme="qwen"] { --bre-accent: #8b7cff; }
+.bre-slider-body[data-bre-theme="minimax"] { --bre-accent: #ff8a6b; }
 .bre-row-chevron { font-size: 20px; line-height: 1; opacity: .42; }
 @media (prefers-reduced-motion: reduce) {
   .bre-effort-slider[data-top] .bre-effort-track { animation: none; }
   .bre-effort-knob,
   .bre-effort-flare,
-  body:not([data-ds-dark-theme]) .bre-effort-track::before { transition: none; }
+  .bre-effort-track::before { transition: none; }
 }
 /* ---- Models-page slider toggle (boxed setting item) ----
    Item form ported VERBATIM from upstream .re-setting-row; the surrounding

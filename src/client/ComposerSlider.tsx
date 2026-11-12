@@ -189,8 +189,6 @@ export function ComposerSlider(props: ComposerSliderProps): ReactNode {
       })
       resizeObserver.observe(canvas)
     }
-    const themeObserver = new MutationObserver(() => draw())
-    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
     redrawRef.current = redraw
     resize()
     draw()
@@ -201,7 +199,6 @@ export function ComposerSlider(props: ComposerSliderProps): ReactNode {
     return () => {
       if (typeof window.cancelAnimationFrame === 'function') window.cancelAnimationFrame(frame)
       resizeObserver?.disconnect()
-      themeObserver.disconnect()
       redrawRef.current = null
     }
   }, [available])
@@ -408,7 +405,7 @@ export function ComposerSlider(props: ComposerSliderProps): ReactNode {
   const effortLabel = levels[Math.max(0, Math.min(levels.length - 1, Math.round(preview)))]?.name ?? t('effortDefault')
 
   if (!available) {
-    return createElement('div', { className: 'bre-slider-body' },
+    return createElement('div', { className: 'bre-slider-body', 'data-bre-theme': theme },
       createElement('div', { className: 'bre-slider-advanced' },
         createElement('span', { className: 'bre-slider-hint' }, t('sliderNoLevels')),
       ),
@@ -441,7 +438,7 @@ export function ComposerSlider(props: ComposerSliderProps): ReactNode {
 
   return createElement(
     'div',
-    { className: 'bre-slider-body' },
+    { className: 'bre-slider-body', 'data-bre-theme': theme },
     createElement(
       'div',
       { className: 'bre-slider-advanced' },

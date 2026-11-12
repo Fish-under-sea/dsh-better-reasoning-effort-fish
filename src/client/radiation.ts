@@ -15,7 +15,8 @@ export function drawRadiation(
   theme: ModelThemeKind = 'deepseek',
 ): void {
   const origin = state.progress * width
-  const isDark = document.body.hasAttribute('data-ds-dark-theme')
+  // Dark-mode gate removed: the slider always uses the light palette.
+  const isDark = false
   const cell = 4
   const speed = state.dragging ? 2.8 : 1
 
