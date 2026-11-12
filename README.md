@@ -57,7 +57,7 @@
 
 - **八款主题**：DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax。模型 `id` / `name` 优先识别，无法识别时回退 provider，仍未知则使用 DeepSeek；聚合供应商不会盖过已识别的模型家族。
 - **无需额外开关**：角色在 Composer 滑块中默认启用，沿用整个滑块原有开关与 `dsh-better-reasoning-effort.slider.enabled` 偏好键；已关闭滑块的用户仍保持关闭，不强制重开，也没有新增角色专用设置。
-- **深浅色与动效**：配套深色 / 浅色轨道、角色逐帧奔跑与辐射效果；拖动时奔跑加速、效果增强。`prefers-reduced-motion: reduce` 下使用静态呈现，仍可选择档位。
+- **统一浅色轨道与模型色**：滑块八款主题统一使用浅色轨道，不再区分深色模式；DeepSeek 使用默认浅蓝背景，右侧思考强度文字（如 `High`）取当前模型主题色。角色逐帧奔跑与辐射效果保留；拖动时奔跑加速、效果增强。`prefers-reduced-motion: reduce` 下使用静态呈现，仍可选择档位。
 - **资源内嵌**：八张运行用 PNG 由 esbuild 的 `dataurl` loader 内嵌进 `lib/client.js`，无需额外资源路由；主题仅改变展示，不增加模型能力或改变思考强度协议。
 - **来源**：[HanaAyane/dsh-reasoning-effort PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9)，贡献者 [xihucuyudaichi](https://github.com/xihucuyudaichi)，固定 commit [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea)。完整 MIT 许可保留在 [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE)，完整署名见 [`NOTICE.md`](NOTICE.md)。
 
@@ -216,6 +216,8 @@ npm run build       # lib/*.js + lib/client.js
 ```
 
 测试由 vitest 驱动，需先 `npm install` 安装依赖（全新 clone 不含 `node_modules`），再 `npm test` 运行；构建用 `npm run build`（`lib/` 为构建产物，已被 gitignore，clone 里不含）。
+
+**质量门禁目前已按要求临时移除**（CI 工作流、发布流程中的 typecheck / test、构建里的 `check:styles`）。完整清单与恢复步骤见 [`GATES_REMOVED.md`](GATES_REMOVED.md)；上面的命令仍可手动运行。
 
 本机在 DSH 文件沙箱下开发时，`vitest` 与 esbuild 需要额外处理（沙箱禁止子进程管道）—— 完整命令见 [`FORK.md`](FORK.md)。
 

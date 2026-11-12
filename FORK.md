@@ -71,6 +71,8 @@ git show 2d68b65:README.zh.md > README_ZH.original.md
 
 ## 本机开发备注（DSH 文件沙箱）
 
+质量门禁已在 2026-11-12 按维护者要求临时移除：CI 工作流、`publish.yml` 的 typecheck/test、构建里的 `check:styles` 以及滑块的深色模式分支。完整清单与恢复步骤见 [`GATES_REMOVED.md`](GATES_REMOVED.md)；`npm run typecheck`、`npm test`、`npm run build` 仍可手动运行。
+
 以下为既有开发环境的排障参考，不是本次已执行或要求自动执行的步骤。遇到权限限制应遵循当前环境审批，不绕过沙箱。
 
 - 在曾出现 `EPERM` 的环境中，vite 在 Windows 探测网络驱动器的 `exec("net use")` 可能被阻止。仓库提供的幂等补丁只修改本地 `node_modules`，重装依赖后需重跑：

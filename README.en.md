@@ -57,7 +57,7 @@ This plugin brings both configuration surfaces back into the UI: edit them insid
 
 - **Eight themes**: DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / MiniMax. Model `id` / `name` takes precedence, provider is the fallback, and unrecognized models use DeepSeek; an aggregator's name does not override a recognized model family.
 - **No extra toggle**: characters are enabled by default within the Composer slider, reusing its existing switch and `dsh-better-reasoning-effort.slider.enabled` preference key. Users who disabled the slider keep it disabled; nothing forcibly re-enables it, and no character-only setting is added.
-- **Light/dark and motion**: matching light/dark tracks, sprite-based running and radiation effects; dragging accelerates the runner and boosts the effects. `prefers-reduced-motion: reduce` uses a static presentation while keeping effort selection available.
+- **Unified light track and model accent**: all eight slider themes now use the light track in every DSH theme; DeepSeek uses the default light-blue background, and the effort label on the right (e.g. `High`) follows the current model's accent color. Sprite-based running and radiation effects remain; dragging accelerates the runner and boosts the effects. `prefers-reduced-motion: reduce` uses a static presentation while keeping effort selection available.
 - **Embedded assets**: esbuild's `dataurl` loader embeds the eight runtime PNGs in `lib/client.js`, with no additional asset route. Themes affect presentation only, not model capabilities or the reasoning-effort protocol.
 - **Source**: [HanaAyane/dsh-reasoning-effort PR #9](https://github.com/HanaAyane/dsh-reasoning-effort/pull/9), contributed by [xihucuyudaichi](https://github.com/xihucuyudaichi), pinned to commit [`651d24edc1ff45fbce5339700b40f32c5ff3ddea`](https://github.com/HanaAyane/dsh-reasoning-effort/commit/651d24edc1ff45fbce5339700b40f32c5ff3ddea). The full MIT license is retained at [`assets/third-party/dsh-reasoning-effort.LICENSE`](assets/third-party/dsh-reasoning-effort.LICENSE); see [`NOTICE.md`](NOTICE.md) for attribution.
 
@@ -216,6 +216,8 @@ npm run build       # lib/*.js + lib/client.js
 ```
 
 Tests are vitest-driven. Run `npm install` first to install dependencies (a fresh clone has no `node_modules`), then `npm test` to run the suite; build with `npm run build` (`lib/` is a build artifact, gitignored and not present in clones).
+
+**The quality gates are currently removed at the maintainer's request** (the CI workflow, the typecheck / test steps in publish, and `check:styles` in the build). See [`GATES_REMOVED.md`](GATES_REMOVED.md) for the full list and restore steps; the commands above still work when run manually.
 
 When developing under the DSH file sandbox, `vitest` and esbuild need extra handling (the sandbox blocks subprocess pipes) — see [`FORK.md`](FORK.md) for the full commands.
 
