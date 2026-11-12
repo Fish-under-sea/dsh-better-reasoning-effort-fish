@@ -5,6 +5,9 @@
 # GitHub Actions，填本仓库名与 workflow 文件名 `publish.yml`。首次发布（包名还
 # 不存在时）请在本机执行：`npm publish --access public --ignore-scripts`。
 #
+# 本机发布成功后，同一个版本仍会随 tag 推送触发本 workflow；下面的 registry
+# 预检会让它跳过重复发布并保持绿色，而不是以 E403 失败。
+#
 # 发布前必须打 tag：`git tag v0.5.3 && git push origin v0.5.3`。
 
 name: Publish Package
@@ -53,6 +56,20 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check whether this version is already on npm
+        id: registry
+        # 版本仍在 registry 上时跳过发布：首次发布由本机完成，tag 推送不应因此变红。
+        run: |
+          NAME="$(node -p "require('./package.json').name")"
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::${NAME}@${VERSION} is already published; skipping publish."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish
+        if: steps.registry.outputs.exists != 'true'
         # --ignore-scripts：lib/ 已由上一步构建好，不必再跑 prepare。
         run: npm publish --access public --ignore-scripts
