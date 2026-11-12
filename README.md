@@ -4,7 +4,7 @@
 
 **第三方模型的思考强度与输入模态，直接改在官方「模型」页的编辑卡里**
 
-[![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-better-reasoning-effort-fish)
+[![npm](https://img.shields.io/npm/v/@fish-under-sea/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/@fish-under-sea/dsh-better-reasoning-effort-fish)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![node](https://img.shields.io/badge/node-%5E22.19.0%20%7C%7C%20%3E%3D24-339933?style=flat-square)
 ![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5%2Dalpha.1-4b6ef6?style=flat-square)
@@ -16,7 +16,7 @@
 
 </div>
 
-> **npm `0.5.9` 已发布。** 本版包含上游 v0.5.4 同步与八款大肥鱼主题，安装与升级方式见[安装](#安装)。浏览器交互与真实 DSH 运行验证仍待补充，详见[开发与测试](#开发与测试)。
+> **npm `0.5.10` 已发布（`@fish-under-sea/dsh-better-reasoning-effort-fish`）。** 本版包含上游 v0.5.4 同步与八款大肥鱼主题，安装与升级方式见[安装](#安装)。浏览器交互与真实 DSH 运行验证仍待补充，详见[开发与测试](#开发与测试)。
 
 ## 原作者与授权（请先读）
 
@@ -26,7 +26,7 @@
 | 原作者 | **HaoyueQin** · GitHub [@HaoyueQin](https://github.com/HaoyueQin) |
 | 原仓库 | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
 | 上游 npm 包名 | `dsh-better-reasoning-effort`（**归原作者，本版不能沿用**） |
-| 本版 npm 包名 | **`dsh-better-reasoning-effort-fish`** |
+| 本版 npm 包名 | **`@fish-under-sea/dsh-better-reasoning-effort-fish`** |
 | 许可证 | **MIT**；上游 [`LICENSE`](LICENSE) 未修改，视觉来源的独立 MIT 声明见 [`NOTICE.md`](NOTICE.md) |
 | 本版基线 | [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) `master` = **v0.5.4**（commit [`2d68b65cc641cd85e95384c859a2bc3de23d9e08`](https://github.com/HaoyueQin/dsh-better-reasoning-effort/commit/2d68b65cc641cd85e95384c859a2bc3de23d9e08)；由 v0.5.2 `52b584c` 同步） |
 | 本版性质 | **个人客制化版（fork）**，非原创、非官方；上游 README 完整保留为 [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
@@ -88,10 +88,10 @@
 
 ```sh
 # 桌面版
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.9
+dsh plugin --profile desktop add @fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10
 
 # Web 版
-dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.9
+dsh plugin --profile web add @fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10
 ```
 
 DSH 内置 pnpm 的 `minimum-release-age` 为 24 小时，不指定版本时可能暂时解析到更旧的版本；指定版本可跳过该等待。安装后**重启 DSH** 并强制刷新浏览器。
@@ -102,10 +102,10 @@ npm registry 不可达时，可直接安装 GitHub Release 的打包成品：
 
 ```sh
 dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.9/dsh-better-reasoning-effort-fish-0.5.9.tgz
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.10/fish-under-sea-dsh-better-reasoning-effort-fish-0.5.10.tgz
 ```
 
-该 tarball 与 npm `0.5.9` 由同一 commit 构建。安装后同样需要重启 DSH 并强制刷新浏览器。
+该 tarball 与 npm `@fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10` 由同一 commit 构建。安装后同样需要重启 DSH 并强制刷新浏览器。
 
 ### 本地源码（开发）
 
@@ -152,7 +152,7 @@ host 侧接受以下可选配置项（写入 `settings.yaml` 的插件 `config` 
 ```yaml
 - insert:
     - id: dsh-better-reasoning-effort-fish
-      name: dsh-better-reasoning-effort-fish
+      name: '@fish-under-sea/dsh-better-reasoning-effort-fish'
       config:
         autofill: true
         modalityAutofill: true

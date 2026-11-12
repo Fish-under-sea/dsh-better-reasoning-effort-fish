@@ -52,12 +52,13 @@ Composer 滑块新增 DeepSeek / OpenAI / Claude / Gemini / Kimi / GLM / Qwen / 
 
 ## 身份与路由（维护时必须保留）
 
-以下三处必须一致，否则可能出现 `loaded without registering`：
+以下位置必须保持一致，否则可能出现 `loaded without registering`：
 
 | 位置 | 值 |
 |------|-----|
-| `package.json` 的 `name` | `dsh-better-reasoning-effort-fish` |
-| `cordis.patch.yml` 插件行的 `name` 与 `id` | `dsh-better-reasoning-effort-fish` |
+| `package.json` 的 `name` | `@fish-under-sea/dsh-better-reasoning-effort-fish` |
+| `cordis.patch.yml` 插件行的 `name` | `@fish-under-sea/dsh-better-reasoning-effort-fish` |
+| `cordis.patch.yml` 插件行的 `id` | `dsh-better-reasoning-effort-fish` |
 | `src/constants.ts` 的 `PLUGIN_ID` | `dsh-better-reasoning-effort-fish` |
 
 host 路由 `PROBE_PATH` / `AUTOFILL_CONFIG_PATH` / `HEADERS_CONFIG_PATH` 继续使用 `/dsh-better-reasoning-effort-fish/*`，与上游区分。包元数据保留 Fish 身份；依赖、上游功能与构建资源规则随此次同步更新，不再声称 `package.json` 仅改身份字段。两版可避免身份与路由碰撞，但实际使用仍建议只启用一个，避免重复 UI 与写入。
@@ -66,4 +67,4 @@ host 路由 `PROBE_PATH` / `AUTOFILL_CONFIG_PATH` / `HEADERS_CONFIG_PATH` 继续
 
 ## 当前发布与验证状态
 
-当前源码已随 npm `0.5.9` 与 GitHub Release `v0.5.9` 发布，包含上游 v0.5.4 同步与八主题功能；旧 npm 包 `0.5.8` 已被作者删除后重新发布。素材预览和上游的验证记录均不能作为本分支在真实 DSH 中已验证的证据。
+当前源码已随 npm `@fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10` 与 GitHub Release `v0.5.10` 发布，包含上游 v0.5.4 同步与八主题功能；未加 scope 的旧包 `0.5.9` 已由作者删除。素材预览和上游的验证记录均不能作为本分支在真实 DSH 中已验证的证据。

@@ -48,4 +48,5 @@ jobs:
             gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
           fi
           # The same name `npm pack` prints, so the README's URL template holds.
-          gh release upload "$GITHUB_REF_NAME" dsh-better-reasoning-effort-*.tgz --clobber
+          # A scoped package drops the `@` and replaces `/` with `-`.
+          gh release upload "$GITHUB_REF_NAME" fish-under-sea-dsh-better-reasoning-effort-fish-*.tgz --clobber

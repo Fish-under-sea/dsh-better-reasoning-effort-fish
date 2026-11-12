@@ -4,7 +4,7 @@
 
 **Edit reasoning effort and input modalities for third-party models right inside the official Models page card in DSH**
 
-[![npm](https://img.shields.io/npm/v/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-better-reasoning-effort-fish)
+[![npm](https://img.shields.io/npm/v/@fish-under-sea/dsh-better-reasoning-effort-fish?style=flat-square&label=npm&color=cb3837)](https://www.npmjs.com/package/@fish-under-sea/dsh-better-reasoning-effort-fish)
 ![license](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![node](https://img.shields.io/badge/node-%5E22.19.0%20%7C%7C%20%3E%3D24-339933?style=flat-square)
 ![DSH](https://img.shields.io/badge/DSH-%E2%89%A5%200.1.5%2Dalpha.1-4b6ef6?style=flat-square)
@@ -16,7 +16,7 @@
 
 </div>
 
-> **npm `0.5.9` is released.** It includes the upstream v0.5.4 sync and the eight runner themes. See [Installation](#installation) for install and upgrade commands. Browser interaction and real-DSH verification are still pending; see [Development & Testing](#development--testing).
+> **npm `0.5.10` is released (`@fish-under-sea/dsh-better-reasoning-effort-fish`).** It includes the upstream v0.5.4 sync and the eight runner themes. See [Installation](#installation) for install and upgrade commands. Browser interaction and real-DSH verification are still pending; see [Development & Testing](#development--testing).
 
 ## Original Author & Attribution (Please Read First)
 
@@ -26,7 +26,7 @@
 | Original author | **HaoyueQin** · GitHub [@HaoyueQin](https://github.com/HaoyueQin) |
 | Original repository | <https://github.com/HaoyueQin/dsh-better-reasoning-effort> |
 | Upstream npm package | `dsh-better-reasoning-effort` (**belongs to the original author; this fork cannot reuse the name**) |
-| This fork's npm package | **`dsh-better-reasoning-effort-fish`** |
+| This fork's npm package | **`@fish-under-sea/dsh-better-reasoning-effort-fish`** |
 | License | **MIT**; upstream [`LICENSE`](LICENSE) is unmodified; see [`NOTICE.md`](NOTICE.md) for the visual source's separate MIT notice |
 | Fork baseline | [HaoyueQin/dsh-better-reasoning-effort](https://github.com/HaoyueQin/dsh-better-reasoning-effort) `master` = **v0.5.4** (commit [`2d68b65cc641cd85e95384c859a2bc3de23d9e08`](https://github.com/HaoyueQin/dsh-better-reasoning-effort/commit/2d68b65cc641cd85e95384c859a2bc3de23d9e08); synced from v0.5.2 `52b584c`) |
 | Nature of this fork | **Personal customization (fork)** — neither original nor official; the upstream README is preserved intact as [`README.original.md`](README.original.md) / [`README_ZH.original.md`](README_ZH.original.md) |
@@ -88,10 +88,10 @@ Compatibility follows the union of peer ranges in `package.json`: the listed lin
 
 ```sh
 # Desktop
-dsh plugin --profile desktop add dsh-better-reasoning-effort-fish@0.5.9
+dsh plugin --profile desktop add @fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10
 
 # Web
-dsh plugin --profile web add dsh-better-reasoning-effort-fish@0.5.9
+dsh plugin --profile web add @fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10
 ```
 
 DSH's bundled pnpm uses a 24-hour `minimum-release-age`, so unpinned installs may temporarily resolve to an older release; pinning bypasses that wait. **Restart DSH** and hard-refresh the browser after installation.
@@ -102,10 +102,10 @@ When the npm registry is unreachable, install the packaged artifact from the Git
 
 ```sh
 dsh plugin --profile web add \
-  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.9/dsh-better-reasoning-effort-fish-0.5.9.tgz
+  https://github.com/Fish-under-sea/dsh-better-reasoning-effort-fish/releases/download/v0.5.10/fish-under-sea-dsh-better-reasoning-effort-fish-0.5.10.tgz
 ```
 
-This tarball and npm `0.5.9` are built from the same commit. Restart DSH and hard-refresh the browser afterwards.
+This tarball and npm `@fish-under-sea/dsh-better-reasoning-effort-fish@0.5.10` are built from the same commit. Restart DSH and hard-refresh the browser afterwards.
 
 ### Local source (development)
 
@@ -152,7 +152,7 @@ Example:
 ```yaml
 - insert:
     - id: dsh-better-reasoning-effort-fish
-      name: dsh-better-reasoning-effort-fish
+      name: '@fish-under-sea/dsh-better-reasoning-effort-fish'
       config:
         autofill: true
         modalityAutofill: true

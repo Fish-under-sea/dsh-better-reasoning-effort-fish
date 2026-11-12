@@ -4,11 +4,12 @@
  * Identity: this is the Fish fork of `dsh-better-reasoning-effort`. The plugin
  * id, the host route prefixes and the locale namespace all carry the fork's own
  * name, so the two plugins can coexist in one profile without fighting over a
- * route or a client-plugin registration. The package name, the
- * `cordis.patch.yml` row and this id must stay in step — a mismatch makes the
- * harness load the bundle without registering it.
+ * route or a client-plugin registration. The package and the
+ * `cordis.patch.yml` row name carry the scoped npm name, while this id stays
+ * unscoped; the row id must match this id — a mismatch makes the harness load
+ * the bundle without registering it.
  *
- * @module dsh-better-reasoning-effort-fish/constants
+ * @module @fish-under-sea/dsh-better-reasoning-effort-fish/constants
  */
 
 /** Stable plugin id, matching the cordis.patch.yml row and the bundle id. */
